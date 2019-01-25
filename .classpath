@@ -1,6 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
 	<classpathentry kind="src" path="src"/>
+<<<<<<< HEAD
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+=======
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/CDC-1.1%Foundation-1.1"/>
+	<classpathentry kind="lib" path="C:/Users/15san_000/OneDrive/Documents/School/Spring_2019/COMP_533/Jars/oeall22.jar"/>
+>>>>>>> a209f5a175612c6c48fc31516847537681f7fa67
 	<classpathentry kind="output" path="bin"/>
 </classpath>
