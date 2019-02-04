@@ -1,4 +1,0 @@
-/**
- * 
- */
-package assignments.util.mainArgs;
