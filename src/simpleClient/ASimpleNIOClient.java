@@ -5,12 +5,15 @@ import java.net.InetAddress;
 import java.nio.channels.SocketChannel;
 
 import assignments.util.mainArgs.ClientArgsProcessor;
-
+import bus.uigen.CompleteOEFrame;
+import bus.uigen.ObjectEditor;
+import graphics.HalloweenSimulation;
 import inputport.nio.manager.NIOManagerFactory;
 import inputport.nio.manager.factories.classes.AReadingWritingConnectCommandFactory;
 import inputport.nio.manager.factories.selectors.ConnectCommandFactorySelector;
 
 import main.BeauAndersonFinalProject;
+import stringProcessors.AHalloweenCommandProcessor;
 import stringProcessors.HalloweenCommandProcessor;
 
 import util.trace.bean.BeanTraceUtility;
@@ -32,7 +35,8 @@ public class ASimpleNIOClient implements SimpleNIOClient{
 	SocketChannel socketChannel;
 	ASimpleClientReciever reciever;
 	//AWriteBufferListerner writeBufferLiserner = new AWriteBufferListerner();
-	HalloweenCommandProcessor simulation;
+	HalloweenCommandProcessor commandInput;
+	HalloweenSimulation simulation;
 	private boolean isAtomic;
 	
 	public ASimpleNIOClient(String aClientName) {
@@ -47,7 +51,8 @@ public class ASimpleNIOClient implements SimpleNIOClient{
 	
 	@Override
 	public void initialize(String aServerHost, int aServerPort, Boolean isAtomic) {
-		this.isAtomic = isAtomic;
+		//this.isAtomic = isAtomic;
+		this.isAtomic = true;
 		createModel();
 		setFactories();
 		socketChannel = createSocketChannel();
@@ -57,11 +62,10 @@ public class ASimpleNIOClient implements SimpleNIOClient{
 		
 		connectToServer(aServerHost, aServerPort);
 		
-		if(!this.isAtomic) {
-			createSimulation();
-		}
-		//createUI();
 		
+		createSimulation();
+		
+		commandInput.setConnectedToSimulation(!this.isAtomic);
 		
 	}
 
@@ -71,20 +75,21 @@ public class ASimpleNIOClient implements SimpleNIOClient{
 	}
 	
 	protected void createSimulation() {
-		simulation = BeauAndersonFinalProject.createSimulation("client", 0, 0, 400, 765, 0, 0);
-		simulation.addPropertyChangeListener(simpleClientSender);
+		commandInput = BeauAndersonFinalProject.createSimulation("client", 0, 0, 400, 765, 0, 0);
+		commandInput.addPropertyChangeListener(simpleClientSender);
 		
 		if(reciever.getSimulation() == null) {
-			reciever.setSimulation(simulation);
+			reciever.setSimulation(commandInput);
 		}
 	}
+
 	
 	protected void addServerListeners(SocketChannel asocketChannel) {
 		
-		reciever = new ASimpleClientReciever( this.clientName);
+		reciever = new ASimpleClientReciever( this.clientName, this.isAtomic);
 		
-		if(this.simulation != null) {
-			reciever.setSimulation(this.simulation);
+		if(this.commandInput != null) {
+			reciever.setSimulation(this.commandInput);
 		}
 		
 		addReadListeners(asocketChannel);

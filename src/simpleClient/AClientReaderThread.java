@@ -16,6 +16,7 @@ public class AClientReaderThread extends Thread{
 	private String substring ;
 	private String clientName;
 	private int length;
+	private Boolean isAtomic;
 
 	public AClientReaderThread(ArrayBlockingQueue<ByteBuffer> readBuffer, SocketChannel aSocketChannel, 
 							   HalloweenCommandProcessor simulation, String cName) {
@@ -27,6 +28,10 @@ public class AClientReaderThread extends Thread{
 	
 	public void setLength(int length) {
 		this.length = length;
+	}
+	
+	public void setAtomic(Boolean value) {
+		this.isAtomic = value;
 	}
 	
 	@Override
@@ -44,7 +49,15 @@ public class AClientReaderThread extends Thread{
 			
 			System.out.println(command);
 			
+			if(isAtomic) {
+				this.simulation.setConnectedToSimulation(true);
+			}
+			
 			this.simulation.processCommand(command);
+			
+			if(isAtomic) {
+				this.simulation.setConnectedToSimulation(false);
+			}
 			
 			
 		} catch (InterruptedException e) {

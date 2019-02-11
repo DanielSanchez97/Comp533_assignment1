@@ -29,10 +29,10 @@ public class ASimpleNIOServer  implements SimpleNIOServer {
 	SimpleServerReceiver simpleServerReceiver;
 	ServerSocketChannel serverSocketChannel;
 	List<SocketChannel> channels = new ArrayList<>();
-	private boolean isAtomic = false;
+	private boolean isAtomic = true;
 	
 	public ASimpleNIOServer() {
-		//channels = 
+		
 	}
 	
 	public void initialize(int aServerPort) {

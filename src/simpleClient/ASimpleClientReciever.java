@@ -16,10 +16,12 @@ public class ASimpleClientReciever implements SimpleClientReciever{
 	private ByteBuffer current; 
 	private HalloweenCommandProcessor simulation;
 	private String clientName;
+	private Boolean isAtomic;
 	
-	public ASimpleClientReciever( String cName) {
+	public ASimpleClientReciever( String cName, Boolean isAtmoic) {
 		this.readBuffer = new ArrayBlockingQueue<ByteBuffer>(500);
 		this.clientName = cName;
+		this.isAtomic = isAtmoic;
 	}
 	
 	public void setSimulation(HalloweenCommandProcessor simulation) {
@@ -52,6 +54,7 @@ public class ASimpleClientReciever implements SimpleClientReciever{
 				if(this.readBuffer.add(current) ){
 					AClientReaderThread t1 = new AClientReaderThread(this.readBuffer, aSocketChannel, this.simulation, this.clientName);
 					t1.setLength(aLength);
+					t1.setAtomic(isAtomic);
 					t1.setName(READ_THREAD_NAME);
 					t1.run();
 					//non blocking add to the buffer and spawn a read thread to read and process the input
