@@ -31,31 +31,41 @@ public class ASimpleNIOClient implements SimpleNIOClient{
 	SimpleController simpleController;
 	SocketChannel socketChannel;
 	ASimpleClientReciever reciever;
-	AWriteBufferListerner writeBufferLiserner = new AWriteBufferListerner();
+	//AWriteBufferListerner writeBufferLiserner = new AWriteBufferListerner();
 	HalloweenCommandProcessor simulation;
+	private boolean isAtomic;
 	
 	public ASimpleNIOClient(String aClientName) {
 		clientName = aClientName;
 	}
+	
 	
 	protected void setFactories() {		
 		ConnectCommandFactorySelector.setFactory(new AReadingWritingConnectCommandFactory());
 		//AcceptCommandFactorySelector.setFactory(new AReadingAcceptCommandFactory());
 	}
 	
-	public void initialize(String aServerHost, int aServerPort) {
-		
+	@Override
+	public void initialize(String aServerHost, int aServerPort, Boolean isAtomic) {
+		this.isAtomic = isAtomic;
 		createModel();
 		setFactories();
 		socketChannel = createSocketChannel();
 		createCommunicationObjects();
 		//addListeners();
+		
+		
 		connectToServer(aServerHost, aServerPort);
-		createSimulation();
+		
+		if(!this.isAtomic) {
+			createSimulation();
+		}
 		//createUI();
 		
+		
 	}
-	
+
+
 	protected void addListeners() {
 		addModelListeners();	
 	}
@@ -78,7 +88,7 @@ public class ASimpleNIOClient implements SimpleNIOClient{
 		}
 		
 		addReadListeners(asocketChannel);
-		NIOManagerFactory.getSingleton().addWriteBoundedBufferListener(asocketChannel, writeBufferLiserner);
+		//NIOManagerFactory.getSingleton().addWriteBoundedBufferListener(asocketChannel, writeBufferLiserner);
 		System.out.println("added read listener");
 		
 	}
@@ -158,7 +168,7 @@ public class ASimpleNIOClient implements SimpleNIOClient{
 	}
 	
 	public static void launchClient(String aServerHost, int aServerPort,
-			String aClientName, Boolean atomic) {
+			String aClientName, String atomic) {
 		/*
 		 * Put these two in your clients also
 		 */
@@ -167,7 +177,9 @@ public class ASimpleNIOClient implements SimpleNIOClient{
 		NIOTraceUtility.setTracing();
 		SimpleNIOClient aClient = new ASimpleNIOClient(
 				aClientName);
-		aClient.initialize(aServerHost, aServerPort);		
+		
+		aClient.initialize(aServerHost, aServerPort, Boolean.parseBoolean(atomic));
+		
 	}
 
 	
@@ -175,9 +187,26 @@ public class ASimpleNIOClient implements SimpleNIOClient{
 		launchClient(ClientArgsProcessor.getServerHost(args),
 				ClientArgsProcessor.getServerPort(args),
 				ClientArgsProcessor.getClientName(args),
-				true);
+				ClientArgsProcessor.getHeadless(args));
 
 	}
+
+
+	@Override
+	public void setAtmoic(Boolean value) {
+		this.isAtomic = value;
+	}
+
+
+	@Override
+	public Boolean getAtmomic() {
+		// TODO Auto-generated method stub
+		return this.isAtomic;
+	}
+
+
+
+
 
 	
 }

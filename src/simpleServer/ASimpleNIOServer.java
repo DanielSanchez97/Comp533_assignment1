@@ -29,6 +29,7 @@ public class ASimpleNIOServer  implements SimpleNIOServer {
 	SimpleServerReceiver simpleServerReceiver;
 	ServerSocketChannel serverSocketChannel;
 	List<SocketChannel> channels = new ArrayList<>();
+	private boolean isAtomic = false;
 	
 	public ASimpleNIOServer() {
 		//channels = 
@@ -100,8 +101,8 @@ public class ASimpleNIOServer  implements SimpleNIOServer {
 		//parameter is the original channel that the message to be broadcasted was
 		System.out.println("calling broadcast");
 		 for (SocketChannel socketChannel : channels) {
-			if(socketChannel.equals(aSocketChannel)) {
-				//do based on if atomic mode
+			if(socketChannel.equals(aSocketChannel) && !isAtomic) {
+				continue;
 			}
 			
 			//System.out.println( message.toString() );

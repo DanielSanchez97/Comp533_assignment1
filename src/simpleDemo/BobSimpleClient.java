@@ -11,7 +11,7 @@ public class BobSimpleClient {
 		//System.out.println(ClientArgsProcessor.getServerPort(args));
 		ASimpleNIOClient.launchClient(ClientArgsProcessor.getServerHost(args), 
 				ClientArgsProcessor.getServerPort(args), 
-				"Bob", false);
+				"Bob", ClientArgsProcessor.getHeadless(args));
 		
 	
 	}
