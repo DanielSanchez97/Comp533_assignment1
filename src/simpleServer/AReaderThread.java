@@ -23,6 +23,9 @@ public class AReaderThread extends Thread {
 	public void run() {
 		try {
 			ByteBuffer message = this.readBuffer.take();
+			
+			
+			
 			this.server.Broadcast(this.channel, message);
 			System.out.println(this.getName());
 			System.out.println(new String("New data is " + message.toString()) );

@@ -7,14 +7,11 @@ import java.nio.channels.SocketChannel;
 import assignments.util.mainArgs.ClientArgsProcessor;
 
 import inputport.nio.manager.NIOManagerFactory;
-
-import inputport.nio.manager.factories.classes.AConnectCommandFactory;
-import inputport.nio.manager.factories.classes.AReadingAcceptCommandFactory;
 import inputport.nio.manager.factories.classes.AReadingWritingConnectCommandFactory;
-import inputport.nio.manager.factories.selectors.AcceptCommandFactorySelector;
 import inputport.nio.manager.factories.selectors.ConnectCommandFactorySelector;
 
-
+import main.BeauAndersonFinalProject;
+import stringProcessors.HalloweenCommandProcessor;
 
 import util.trace.bean.BeanTraceUtility;
 import util.trace.factories.FactoryTraceUtility;
@@ -35,6 +32,7 @@ public class ASimpleNIOClient implements SimpleNIOClient{
 	SocketChannel socketChannel;
 	ASimpleClientReciever reciever;
 	AWriteBufferListerner writeBufferLiserner = new AWriteBufferListerner();
+	HalloweenCommandProcessor simulation;
 	
 	public ASimpleNIOClient(String aClientName) {
 		clientName = aClientName;
@@ -51,18 +49,34 @@ public class ASimpleNIOClient implements SimpleNIOClient{
 		setFactories();
 		socketChannel = createSocketChannel();
 		createCommunicationObjects();
-		addListeners();
+		//addListeners();
 		connectToServer(aServerHost, aServerPort);
-		createUI();
+		createSimulation();
+		//createUI();
+		
 	}
 	
 	protected void addListeners() {
 		addModelListeners();	
 	}
 	
+	protected void createSimulation() {
+		simulation = BeauAndersonFinalProject.createSimulation("client", 0, 0, 400, 765, 0, 0);
+		simulation.addPropertyChangeListener(simpleClientSender);
+		
+		if(reciever.getSimulation() == null) {
+			reciever.setSimulation(simulation);
+		}
+	}
+	
 	protected void addServerListeners(SocketChannel asocketChannel) {
 		
-		reciever = new ASimpleClientReciever();
+		reciever = new ASimpleClientReciever( this.clientName);
+		
+		if(this.simulation != null) {
+			reciever.setSimulation(this.simulation);
+		}
+		
 		addReadListeners(asocketChannel);
 		NIOManagerFactory.getSingleton().addWriteBoundedBufferListener(asocketChannel, writeBufferLiserner);
 		System.out.println("added read listener");

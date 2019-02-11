@@ -5,6 +5,7 @@ import java.nio.channels.SocketChannel;
 import java.util.concurrent.ArrayBlockingQueue;
 
 import assignments.util.MiscAssignmentUtils;
+import stringProcessors.HalloweenCommandProcessor;
 
 
 
@@ -13,9 +14,23 @@ public class ASimpleClientReciever implements SimpleClientReciever{
 	private ArrayBlockingQueue<ByteBuffer> readBuffer;
 	public static final String READ_THREAD_NAME = "Read Thread";
 	private ByteBuffer current; 
+	private HalloweenCommandProcessor simulation;
+	private String clientName;
 	
-	public ASimpleClientReciever() {
+	public ASimpleClientReciever( String cName) {
 		this.readBuffer = new ArrayBlockingQueue<ByteBuffer>(500);
+		this.clientName = cName;
+	}
+	
+	public void setSimulation(HalloweenCommandProcessor simulation) {
+		
+		if(this.simulation == null) {
+			this.simulation = simulation;
+		}
+	}
+	
+	public HalloweenCommandProcessor getSimulation() {
+		return this.simulation;
 	}
 	
 	
@@ -35,7 +50,8 @@ public class ASimpleClientReciever implements SimpleClientReciever{
 		if(current.remaining() == 0) {
 			try {
 				if(this.readBuffer.add(current) ){
-					AClientReaderThread t1 = new AClientReaderThread(this.readBuffer, aSocketChannel);
+					AClientReaderThread t1 = new AClientReaderThread(this.readBuffer, aSocketChannel, this.simulation, this.clientName);
+					t1.setLength(aLength);
 					t1.setName(READ_THREAD_NAME);
 					t1.run();
 					//non blocking add to the buffer and spawn a read thread to read and process the input
