@@ -68,8 +68,7 @@ public class BeauAndersonFinalProject
 			int simulationWidth,
 			int simulationHeight,
 			int commandX,
-			int commandY)
-{
+			int commandY){
 	
 	HalloweenSimulation aNewHalloweenSim = createAndDisplaySimulationWithoutCommandProcessor(simulationX, simulationY, simulationWidth, simulationHeight, titlePrefix);
 ////	OEFrame simulationFrame = ObjectEditor.edit(aNewHalloweenSim);
@@ -83,7 +82,8 @@ public class BeauAndersonFinalProject
 	HalloweenCommandProcessor commandLine = new AHalloweenCommandProcessor();
 	bindAndDisplayCommandProcessor(aNewHalloweenSim, commandLine, titlePrefix, commandX, commandY);
 	return commandLine;
-}
+	}
+	
 	public static HalloweenSimulation createAndDisplaySimulationWithoutCommandProcessor( 
 			int simulationX, 
 			int simulationY, 

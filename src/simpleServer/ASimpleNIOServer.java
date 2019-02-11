@@ -1,18 +1,21 @@
-package simpleServerDemo.Servers;
+package simpleServer;
 
 
 
 
 import java.net.InetSocketAddress;
+import java.nio.ByteBuffer;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 import assignments.util.mainArgs.ServerArgsProcessor;
-import examples.nio.manager.server.AMeaningOfLifeNIOServer;
-import examples.nio.manager.server.AMeaningOfLifeServerReceiver;
-import examples.nio.manager.server.MeaningOfLifeNIOServer;
+
 import inputport.nio.manager.NIOManagerFactory;
 import inputport.nio.manager.factories.classes.AReadingAcceptCommandFactory;
+
 import inputport.nio.manager.factories.selectors.AcceptCommandFactorySelector;
 import util.annotations.Tags;
 import util.tags.DistributedTags;
@@ -21,15 +24,18 @@ import util.trace.factories.FactoryTraceUtility;
 import util.trace.port.nio.NIOTraceUtility;
 import util.trace.port.nio.SocketChannelBound;
 
+@Tags(DistributedTags.SERVER)
 public class ASimpleNIOServer  implements SimpleNIOServer {
 	SimpleServerReceiver simpleServerReceiver;
 	ServerSocketChannel serverSocketChannel;
+	List<SocketChannel> channels = new ArrayList<>();
 	
 	public ASimpleNIOServer() {
-		
+		//channels = 
 	}
 	
 	public void initialize(int aServerPort) {
+		
 		setFactories();
 		serverSocketChannel = createSocketChannel(aServerPort);
 		createCommunicationObjects();
@@ -39,6 +45,7 @@ public class ASimpleNIOServer  implements SimpleNIOServer {
 	
 	protected void setFactories() {
 		AcceptCommandFactorySelector.setFactory(new AReadingAcceptCommandFactory());
+		//ConnectCommandFactorySelector.setFactory(new AReadingWritingConnectCommandFactory());
 	}
 	
 	protected ServerSocketChannel createSocketChannel(int aServerPort) {
@@ -61,13 +68,13 @@ public class ASimpleNIOServer  implements SimpleNIOServer {
 	}
 	
 	protected void createReceiver() {
-		simpleServerReceiver = new ASimpleServerReceiver();
+		simpleServerReceiver = new ASimpleServerReceiver(this);
 	}
 
 	@Override
 	public void socketChannelAccepted(ServerSocketChannel aServerSocketChannel, SocketChannel aSocketChannel) {
-		// TODO Auto-generated method stub
 		
+		addListeners(aSocketChannel);
 	}
 	
 	protected void addReadListener(SocketChannel aSocketChannel) {
@@ -76,8 +83,34 @@ public class ASimpleNIOServer  implements SimpleNIOServer {
 	}
 	
 	protected void addListeners(SocketChannel aSocketChannel) {
-//		addWriteBufferListener(aSocketChannel);
+		addWriteBufferListener(aSocketChannel);
 		addReadListener(aSocketChannel);		
+	}
+	
+	protected void addWriteBufferListener(SocketChannel aSocketChannel) {
+		if(channels.add(aSocketChannel)) {
+			//channel added to list of channels
+		}
+		else {
+			System.err.println("Channel already added");
+		}
+	}
+	
+	public void Broadcast(SocketChannel aSocketChannel, ByteBuffer message) {
+		//parameter is the original channel that the message to be broadcasted was
+		System.out.println("calling broadcast");
+		 for (SocketChannel socketChannel : channels) {
+			if(socketChannel.equals(aSocketChannel)) {
+				//do based on if atomic mode
+			}
+			
+			//System.out.println( message.toString() );
+			
+			ByteBuffer aMessage = ByteBuffer.wrap( message.array());
+		
+			NIOManagerFactory.getSingleton().write(socketChannel, aMessage);
+		}
+		
 	}
 	
 

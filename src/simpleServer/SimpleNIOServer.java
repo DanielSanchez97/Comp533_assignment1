@@ -1,4 +1,4 @@
-package simpleServerDemo.Servers;
+package simpleServer;
 
 
 

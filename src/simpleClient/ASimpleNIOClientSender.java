@@ -22,7 +22,7 @@ public class ASimpleNIOClientSender implements SimpleNIOClientSender{
 		if (!anEvent.getPropertyName().equals("Data")) return;
 		ByteBuffer aMeaningByteBuffer = ByteBuffer.wrap((clientName + ":" + anEvent.getNewValue()).getBytes());
 		NIOManagerFactory.getSingleton().write(socketChannel, aMeaningByteBuffer);
-		System.out.println("sent to the server: "+ anEvent.getNewValue()+" \n ");
+		
 	}
 	
 	

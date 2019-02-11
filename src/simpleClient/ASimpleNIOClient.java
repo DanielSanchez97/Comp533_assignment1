@@ -7,8 +7,13 @@ import java.nio.channels.SocketChannel;
 import assignments.util.mainArgs.ClientArgsProcessor;
 
 import inputport.nio.manager.NIOManagerFactory;
+
 import inputport.nio.manager.factories.classes.AConnectCommandFactory;
+import inputport.nio.manager.factories.classes.AReadingAcceptCommandFactory;
+import inputport.nio.manager.factories.classes.AReadingWritingConnectCommandFactory;
+import inputport.nio.manager.factories.selectors.AcceptCommandFactorySelector;
 import inputport.nio.manager.factories.selectors.ConnectCommandFactorySelector;
+
 
 
 import util.trace.bean.BeanTraceUtility;
@@ -28,16 +33,20 @@ public class ASimpleNIOClient implements SimpleNIOClient{
 	SimpleView simpleView;
 	SimpleController simpleController;
 	SocketChannel socketChannel;
+	ASimpleClientReciever reciever;
+	AWriteBufferListerner writeBufferLiserner = new AWriteBufferListerner();
 	
 	public ASimpleNIOClient(String aClientName) {
 		clientName = aClientName;
 	}
 	
 	protected void setFactories() {		
-		ConnectCommandFactorySelector.setFactory(new AConnectCommandFactory());
+		ConnectCommandFactorySelector.setFactory(new AReadingWritingConnectCommandFactory());
+		//AcceptCommandFactorySelector.setFactory(new AReadingAcceptCommandFactory());
 	}
 	
 	public void initialize(String aServerHost, int aServerPort) {
+		
 		createModel();
 		setFactories();
 		socketChannel = createSocketChannel();
@@ -48,7 +57,21 @@ public class ASimpleNIOClient implements SimpleNIOClient{
 	}
 	
 	protected void addListeners() {
-		addModelListeners();
+		addModelListeners();	
+	}
+	
+	protected void addServerListeners(SocketChannel asocketChannel) {
+		
+		reciever = new ASimpleClientReciever();
+		addReadListeners(asocketChannel);
+		NIOManagerFactory.getSingleton().addWriteBoundedBufferListener(asocketChannel, writeBufferLiserner);
+		System.out.println("added read listener");
+		
+	}
+	
+	public void addReadListeners(SocketChannel asocketChannel) {
+		NIOManagerFactory.getSingleton().addReadListener(asocketChannel,
+				reciever);
 	}
 	
 	protected void addModelListeners() {
@@ -97,7 +120,10 @@ public class ASimpleNIOClient implements SimpleNIOClient{
 	@Override
 	public void connected(SocketChannel theSocketChannel) {
 	
+		//NIOManagerFactory.getSingleton().enableReads(socketChannel);
+		addServerListeners(theSocketChannel);
 		System.out.println("Ready to send messages to server");
+	
 	}
 
 	@Override
@@ -109,6 +135,7 @@ public class ASimpleNIOClient implements SimpleNIOClient{
 	
 	protected void createCommunicationObjects() {
 		createSender();
+		
 	}
 	
 	protected void createSender() {
@@ -117,7 +144,7 @@ public class ASimpleNIOClient implements SimpleNIOClient{
 	}
 	
 	public static void launchClient(String aServerHost, int aServerPort,
-			String aClientName) {
+			String aClientName, Boolean atomic) {
 		/*
 		 * Put these two in your clients also
 		 */
@@ -133,7 +160,8 @@ public class ASimpleNIOClient implements SimpleNIOClient{
 	public static void main(String[] args) {	
 		launchClient(ClientArgsProcessor.getServerHost(args),
 				ClientArgsProcessor.getServerPort(args),
-				ClientArgsProcessor.getClientName(args));
+				ClientArgsProcessor.getClientName(args),
+				true);
 
 	}
 
