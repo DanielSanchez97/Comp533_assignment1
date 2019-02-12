@@ -4,9 +4,12 @@ import java.io.IOException;
 import java.net.InetAddress;
 import java.nio.channels.SocketChannel;
 
+import assignments.util.inputParameters.ASimulationParametersController;
 import assignments.util.mainArgs.ClientArgsProcessor;
 import bus.uigen.CompleteOEFrame;
 import bus.uigen.ObjectEditor;
+import bus.uigen.controller.menus.AMethodProcessor;
+import dynamicInput.AClientParameterListener;
 import graphics.HalloweenSimulation;
 import inputport.nio.manager.NIOManagerFactory;
 import inputport.nio.manager.factories.classes.AReadingWritingConnectCommandFactory;
@@ -16,28 +19,25 @@ import main.BeauAndersonFinalProject;
 import stringProcessors.AHalloweenCommandProcessor;
 import stringProcessors.HalloweenCommandProcessor;
 
+import util.interactiveMethodInvocation.*;
+
 import util.trace.bean.BeanTraceUtility;
 import util.trace.factories.FactoryTraceUtility;
 import util.trace.port.nio.NIOTraceUtility;
-import simpleMVC.ASimpleModel;
-import simpleMVC.ASimpleView;
-import simpleMVC.ASimpleController;
-import simpleMVC.SimpleModel;
-import simpleMVC.SimpleView;
-import simpleMVC.SimpleController;
+
 
 public class ASimpleNIOClient implements SimpleNIOClient{
 	String clientName;
 	SimpleNIOClientSender simpleClientSender;
-	SimpleModel simpleModel;
-	SimpleView simpleView;
-	SimpleController simpleController;
+
 	SocketChannel socketChannel;
 	ASimpleClientReciever reciever;
-	//AWriteBufferListerner writeBufferLiserner = new AWriteBufferListerner();
+
+
 	HalloweenCommandProcessor commandInput;
 	HalloweenSimulation simulation;
-	private boolean isAtomic;
+	private boolean isAtomic = false;
+	private boolean isLocal = false;
 	
 	public ASimpleNIOClient(String aClientName) {
 		clientName = aClientName;
@@ -50,37 +50,36 @@ public class ASimpleNIOClient implements SimpleNIOClient{
 	}
 	
 	@Override
-	public void initialize(String aServerHost, int aServerPort, Boolean isAtomic) {
-		//this.isAtomic = isAtomic;
-		this.isAtomic = true;
-		createModel();
+	public void initialize(String aServerHost, int aServerPort) {
 		setFactories();
 		socketChannel = createSocketChannel();
 		createCommunicationObjects();
-		//addListeners();
-		
-		
+
 		connectToServer(aServerHost, aServerPort);
-		
 		
 		createSimulation();
 		
 		commandInput.setConnectedToSimulation(!this.isAtomic);
+		launchConsole();
 		
 	}
 
 
-	protected void addListeners() {
-		addModelListeners();	
-	}
+
 	
 	protected void createSimulation() {
 		commandInput = BeauAndersonFinalProject.createSimulation("client", 0, 0, 400, 765, 0, 0);
-		commandInput.addPropertyChangeListener(simpleClientSender);
 		
+		
+		commandInput.addPropertyChangeListener(simpleClientSender);
+			
+
 		if(reciever.getSimulation() == null) {
 			reciever.setSimulation(commandInput);
 		}
+		
+		simpleClientSender.setLocal(this.isLocal);
+		
 	}
 
 	
@@ -103,22 +102,7 @@ public class ASimpleNIOClient implements SimpleNIOClient{
 				reciever);
 	}
 	
-	protected void addModelListeners() {
-		simpleModel.addPropertyChangeListener(simpleClientSender);
-	}
-	
-	public void createModel() {
-		simpleModel = new ASimpleModel();
-	}
-	
-	public void createUI() {
-		simpleView = new ASimpleView();
-		simpleModel.addPropertyChangeListener(simpleView);
-		simpleController = new ASimpleController(simpleModel);
-		simpleController.processInput();
-		
-	}
-	
+
 	protected SocketChannel createSocketChannel() {
 		try {
 			SocketChannel retVal = SocketChannel.open();
@@ -172,6 +156,16 @@ public class ASimpleNIOClient implements SimpleNIOClient{
 				clientName);
 	}
 	
+	protected void launchConsole() {
+		AClientParameterListener dynamicInput = new AClientParameterListener(this);
+		SimulationParametersController aSimulationParametersController = 
+				new ASimulationParametersController();
+		 
+		aSimulationParametersController.addSimulationParameterListener(dynamicInput);
+		
+		aSimulationParametersController.processCommands();
+	}
+	
 	public static void launchClient(String aServerHost, int aServerPort,
 			String aClientName, String atomic) {
 		/*
@@ -182,13 +176,13 @@ public class ASimpleNIOClient implements SimpleNIOClient{
 		NIOTraceUtility.setTracing();
 		SimpleNIOClient aClient = new ASimpleNIOClient(
 				aClientName);
-		
-		aClient.initialize(aServerHost, aServerPort, Boolean.parseBoolean(atomic));
-		
+		aClient.initialize(aServerHost, aServerPort);
 	}
 
 	
-	public static void main(String[] args) {	
+	
+	public static void main(String[] args) {
+		
 		launchClient(ClientArgsProcessor.getServerHost(args),
 				ClientArgsProcessor.getServerPort(args),
 				ClientArgsProcessor.getClientName(args),
@@ -198,13 +192,26 @@ public class ASimpleNIOClient implements SimpleNIOClient{
 
 
 	@Override
-	public void setAtmoic(Boolean value) {
+	public void setAtomic(Boolean value) {
 		this.isAtomic = value;
+		
+		if(value) {
+			commandInput.setConnectedToSimulation(false);
+		}
+		else {
+			commandInput.setConnectedToSimulation(true);
+		}
+	}
+	
+	public void setLocal(boolean isLocal) {
+		this.isLocal = isLocal;
+		
+		simpleClientSender.setLocal(this.isLocal);
 	}
 
 
 	@Override
-	public Boolean getAtmomic() {
+	public Boolean getAtomic() {
 		// TODO Auto-generated method stub
 		return this.isAtomic;
 	}

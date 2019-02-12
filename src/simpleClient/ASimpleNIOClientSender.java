@@ -11,6 +11,7 @@ public class ASimpleNIOClientSender implements SimpleNIOClientSender{
 	SocketChannel socketChannel;
 	String clientName;
 	HalloweenCommandProcessor simulation;
+	boolean isLocal = false;
 	
 	public ASimpleNIOClientSender(SocketChannel aSocketChannel, String aClientName) {
 		socketChannel = aSocketChannel;
@@ -18,11 +19,15 @@ public class ASimpleNIOClientSender implements SimpleNIOClientSender{
 		
 	}
 	
+	public void setLocal(boolean local) {
+		isLocal = local;
+	}
+	
 	
 	@Override
 	public void propertyChange(PropertyChangeEvent anEvent) {
 		// TODO Auto-generated method stub
-		if (!anEvent.getPropertyName().equals("InputString")) return;
+		if (!anEvent.getPropertyName().equals("InputString") || isLocal) return;
 		ByteBuffer aMeaningByteBuffer = ByteBuffer.wrap((clientName + ":" + anEvent.getNewValue()).getBytes());
 		NIOManagerFactory.getSingleton().write(socketChannel, aMeaningByteBuffer);
 		

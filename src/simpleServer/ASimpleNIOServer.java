@@ -11,13 +11,15 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
+import assignments.util.inputParameters.ASimulationParametersController;
 import assignments.util.mainArgs.ServerArgsProcessor;
-
+import dynamicInput.AServerParameterListener;
 import inputport.nio.manager.NIOManagerFactory;
 import inputport.nio.manager.factories.classes.AReadingAcceptCommandFactory;
 
 import inputport.nio.manager.factories.selectors.AcceptCommandFactorySelector;
 import util.annotations.Tags;
+import util.interactiveMethodInvocation.SimulationParametersController;
 import util.tags.DistributedTags;
 import util.trace.bean.BeanTraceUtility;
 import util.trace.factories.FactoryTraceUtility;
@@ -29,7 +31,7 @@ public class ASimpleNIOServer  implements SimpleNIOServer {
 	SimpleServerReceiver simpleServerReceiver;
 	ServerSocketChannel serverSocketChannel;
 	List<SocketChannel> channels = new ArrayList<>();
-	private boolean isAtomic = true;
+	private boolean isAtomic = false;
 	
 	public ASimpleNIOServer() {
 		
@@ -41,6 +43,7 @@ public class ASimpleNIOServer  implements SimpleNIOServer {
 		serverSocketChannel = createSocketChannel(aServerPort);
 		createCommunicationObjects();
 		makeServerConnectable(aServerPort);
+		launchConsole();
 		
 	}
 	
@@ -70,6 +73,15 @@ public class ASimpleNIOServer  implements SimpleNIOServer {
 	
 	protected void createReceiver() {
 		simpleServerReceiver = new ASimpleServerReceiver(this);
+	}
+	
+	protected void launchConsole() {
+		AServerParameterListener dynamicInput = new AServerParameterListener(this);
+		SimulationParametersController aSimulationParametersController = 
+				new ASimulationParametersController(); 
+		aSimulationParametersController.addSimulationParameterListener(dynamicInput);
+		
+		aSimulationParametersController.processCommands();
 	}
 
 	@Override
@@ -112,6 +124,10 @@ public class ASimpleNIOServer  implements SimpleNIOServer {
 			NIOManagerFactory.getSingleton().write(socketChannel, aMessage);
 		}
 		
+	}
+	
+	public void setAtomic(boolean atomic) {
+		this.isAtomic = atomic;
 	}
 	
 
