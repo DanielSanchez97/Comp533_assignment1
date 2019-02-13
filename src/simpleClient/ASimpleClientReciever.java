@@ -18,8 +18,8 @@ public class ASimpleClientReciever implements SimpleClientReciever{
 	private String clientName;
 	private Boolean isAtomic;
 	
-	public ASimpleClientReciever( String cName, Boolean isAtmoic) {
-		this.readBuffer = new ArrayBlockingQueue<ByteBuffer>(500);
+	public ASimpleClientReciever( String cName, Boolean isAtmoic, ArrayBlockingQueue<ByteBuffer> buffer) {
+		this.readBuffer = buffer;
 		this.clientName = cName;
 		this.isAtomic = isAtmoic;
 	}
@@ -51,14 +51,9 @@ public class ASimpleClientReciever implements SimpleClientReciever{
 		
 		if(current.remaining() == 0) {
 			try {
-				if(this.readBuffer.add(current) ){
-					AClientReaderThread t1 = new AClientReaderThread(this.readBuffer, aSocketChannel, this.simulation, this.clientName);
-					t1.setLength(aLength);
-					t1.setAtomic(isAtomic);
-					t1.setName(READ_THREAD_NAME);
-					t1.run();
-					//non blocking add to the buffer and spawn a read thread to read and process the input
-				}
+				this.readBuffer.add(current);
+					
+				
 			}
 			catch (IllegalStateException e) {
 				System.out.println(" read buffer filled in the reciever listnerer \n");

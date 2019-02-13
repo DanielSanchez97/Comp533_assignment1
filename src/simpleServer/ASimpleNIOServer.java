@@ -10,6 +10,7 @@ import java.nio.channels.SocketChannel;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import assignments.util.inputParameters.ASimulationParametersController;
 import assignments.util.mainArgs.ServerArgsProcessor;
@@ -30,6 +31,11 @@ import util.trace.port.nio.SocketChannelBound;
 public class ASimpleNIOServer  implements SimpleNIOServer {
 	SimpleServerReceiver simpleServerReceiver;
 	ServerSocketChannel serverSocketChannel;
+	
+	private ArrayBlockingQueue<ByteBuffer> readBuffer;
+	public static final String READ_THREAD_NAME = "Read Thread";
+	AReaderThread readThread;
+	
 	List<SocketChannel> channels = new ArrayList<>();
 	private boolean isAtomic = false;
 	
@@ -38,7 +44,7 @@ public class ASimpleNIOServer  implements SimpleNIOServer {
 	}
 	
 	public void initialize(int aServerPort) {
-		
+		readBuffer = new ArrayBlockingQueue<ByteBuffer>(500);
 		setFactories();
 		serverSocketChannel = createSocketChannel(aServerPort);
 		createCommunicationObjects();
@@ -50,6 +56,12 @@ public class ASimpleNIOServer  implements SimpleNIOServer {
 	protected void setFactories() {
 		AcceptCommandFactorySelector.setFactory(new AReadingAcceptCommandFactory());
 		//ConnectCommandFactorySelector.setFactory(new AReadingWritingConnectCommandFactory());
+	}
+	
+	protected void createReadThread(SocketChannel aSocketChannel) {
+		readThread = new AReaderThread(this.readBuffer, aSocketChannel, this);
+		readThread.setName(READ_THREAD_NAME);
+		readThread.start();
 	}
 	
 	protected ServerSocketChannel createSocketChannel(int aServerPort) {
@@ -72,7 +84,8 @@ public class ASimpleNIOServer  implements SimpleNIOServer {
 	}
 	
 	protected void createReceiver() {
-		simpleServerReceiver = new ASimpleServerReceiver(this);
+
+		simpleServerReceiver = new ASimpleServerReceiver(readBuffer);
 	}
 	
 	protected void launchConsole() {
@@ -97,7 +110,8 @@ public class ASimpleNIOServer  implements SimpleNIOServer {
 	
 	protected void addListeners(SocketChannel aSocketChannel) {
 		addWriteBufferListener(aSocketChannel);
-		addReadListener(aSocketChannel);		
+		addReadListener(aSocketChannel);	
+		createReadThread(aSocketChannel);
 	}
 	
 	protected void addWriteBufferListener(SocketChannel aSocketChannel) {

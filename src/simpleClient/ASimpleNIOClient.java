@@ -2,7 +2,9 @@ package simpleClient;
 
 import java.io.IOException;
 import java.net.InetAddress;
+import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
+import java.util.concurrent.ArrayBlockingQueue;
 
 import assignments.util.inputParameters.ASimulationParametersController;
 import assignments.util.mainArgs.ClientArgsProcessor;
@@ -33,7 +35,11 @@ public class ASimpleNIOClient implements SimpleNIOClient{
 	SocketChannel socketChannel;
 	ASimpleClientReciever reciever;
 
-
+	ArrayBlockingQueue<ByteBuffer> readBuffer;
+	public static final String READ_THREAD_NAME = "Read Thread";
+	AClientReaderThread aReadThread;
+	
+	
 	HalloweenCommandProcessor commandInput;
 	HalloweenSimulation simulation;
 	private boolean isAtomic = false;
@@ -51,6 +57,7 @@ public class ASimpleNIOClient implements SimpleNIOClient{
 	
 	@Override
 	public void initialize(String aServerHost, int aServerPort) {
+		readBuffer = new ArrayBlockingQueue<ByteBuffer>(500);
 		setFactories();
 		socketChannel = createSocketChannel();
 		createCommunicationObjects();
@@ -58,6 +65,7 @@ public class ASimpleNIOClient implements SimpleNIOClient{
 		connectToServer(aServerHost, aServerPort);
 		
 		createSimulation();
+		createReadThread();
 		
 		commandInput.setConnectedToSimulation(!this.isAtomic);
 		launchConsole();
@@ -65,6 +73,12 @@ public class ASimpleNIOClient implements SimpleNIOClient{
 	}
 
 
+	protected void createReadThread() {
+		aReadThread = new AClientReaderThread(this.readBuffer, this.socketChannel, commandInput);
+		aReadThread.setName(READ_THREAD_NAME);
+		aReadThread.setAtomic(isAtomic);
+		aReadThread.start();
+	}
 
 	
 	protected void createSimulation() {
@@ -84,8 +98,9 @@ public class ASimpleNIOClient implements SimpleNIOClient{
 
 	
 	protected void addServerListeners(SocketChannel asocketChannel) {
+	
 		
-		reciever = new ASimpleClientReciever( this.clientName, this.isAtomic);
+		reciever = new ASimpleClientReciever( this.clientName, this.isAtomic, this.readBuffer);
 		
 		if(this.commandInput != null) {
 			reciever.setSimulation(this.commandInput);
@@ -207,6 +222,7 @@ public class ASimpleNIOClient implements SimpleNIOClient{
 		this.isLocal = isLocal;
 		
 		simpleClientSender.setLocal(this.isLocal);
+		aReadThread.setAtomic(this.isLocal);
 	}
 
 

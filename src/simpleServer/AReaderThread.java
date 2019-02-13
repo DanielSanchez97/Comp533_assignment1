@@ -21,19 +21,21 @@ public class AReaderThread extends Thread {
 	
 	@Override
 	public void run() {
-		try {
-			ByteBuffer message = this.readBuffer.take();
-			
-			
-			
-			this.server.Broadcast(this.channel, message);
-			System.out.println(this.getName());
-			System.out.println(new String("New data is " + message.toString()) );
-			
-			
-		} catch (InterruptedException e) {
-			
-			
+		while(true) {
+			try {
+				ByteBuffer message = this.readBuffer.take();
+				
+				
+				
+				this.server.Broadcast(this.channel, message);
+				System.out.println(this.getName());
+				System.out.println(new String("New data is " + message.toString()) );
+				
+				
+			} catch (InterruptedException e) {
+				
+				
+			}
 		}
 		
 		
