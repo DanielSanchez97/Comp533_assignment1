@@ -45,6 +45,7 @@ public class ASimpleNIOServer  implements SimpleNIOServer {
 	
 	public void initialize(int aServerPort) {
 		readBuffer = new ArrayBlockingQueue<ByteBuffer>(500);
+		
 		setFactories();
 		serverSocketChannel = createSocketChannel(aServerPort);
 		createCommunicationObjects();
