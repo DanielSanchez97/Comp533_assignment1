@@ -8,26 +8,21 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 import assignments.util.inputParameters.ASimulationParametersController;
 import assignments.util.mainArgs.ClientArgsProcessor;
-import bus.uigen.CompleteOEFrame;
-import bus.uigen.ObjectEditor;
-import bus.uigen.controller.menus.AMethodProcessor;
 import dynamicInput.AClientParameterListener;
 import graphics.HalloweenSimulation;
 import inputport.nio.manager.NIOManagerFactory;
 import inputport.nio.manager.factories.classes.AReadingWritingConnectCommandFactory;
 import inputport.nio.manager.factories.selectors.ConnectCommandFactorySelector;
-
 import main.BeauAndersonFinalProject;
-import stringProcessors.AHalloweenCommandProcessor;
 import stringProcessors.HalloweenCommandProcessor;
-
-import util.interactiveMethodInvocation.*;
-
+import util.annotations.Tags;
+import util.interactiveMethodInvocation.SimulationParametersController;
+import util.tags.DistributedTags;
 import util.trace.bean.BeanTraceUtility;
 import util.trace.factories.FactoryTraceUtility;
 import util.trace.port.nio.NIOTraceUtility;
 
-
+@Tags({DistributedTags.CLIENT})
 public class ASimpleNIOClient implements SimpleNIOClient{
 	String clientName;
 	SimpleNIOClientSender simpleClientSender;
@@ -74,7 +69,7 @@ public class ASimpleNIOClient implements SimpleNIOClient{
 
 
 	protected void createReadThread() {
-		aReadThread = new AClientReaderThread(this.readBuffer, this.socketChannel, commandInput);
+		aReadThread = new AClientReaderThread(this.readBuffer, commandInput);
 		aReadThread.setName(READ_THREAD_NAME);
 		aReadThread.setAtomic(isAtomic);
 		aReadThread.start();
@@ -230,6 +225,10 @@ public class ASimpleNIOClient implements SimpleNIOClient{
 	public Boolean getAtomic() {
 		// TODO Auto-generated method stub
 		return this.isAtomic;
+	}
+	
+	public HalloweenCommandProcessor getCommandProcessor() {
+		return this.commandInput;
 	}
 
 

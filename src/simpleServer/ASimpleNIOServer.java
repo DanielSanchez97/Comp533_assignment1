@@ -7,7 +7,6 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.nio.channels.ServerSocketChannel;
 import java.nio.channels.SocketChannel;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -17,7 +16,6 @@ import assignments.util.mainArgs.ServerArgsProcessor;
 import dynamicInput.AServerParameterListener;
 import inputport.nio.manager.NIOManagerFactory;
 import inputport.nio.manager.factories.classes.AReadingAcceptCommandFactory;
-
 import inputport.nio.manager.factories.selectors.AcceptCommandFactorySelector;
 import util.annotations.Tags;
 import util.interactiveMethodInvocation.SimulationParametersController;
@@ -55,7 +53,7 @@ public class ASimpleNIOServer  implements SimpleNIOServer {
 	
 	protected void setFactories() {
 		AcceptCommandFactorySelector.setFactory(new AReadingAcceptCommandFactory());
-		//ConnectCommandFactorySelector.setFactory(new AReadingWritingConnectCommandFactory());
+		
 	}
 	
 	protected void createReadThread(SocketChannel aSocketChannel) {

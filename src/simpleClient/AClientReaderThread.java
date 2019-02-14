@@ -2,26 +2,25 @@ package simpleClient;
 
 import java.nio.ByteBuffer;
 import java.nio.channels.SocketChannel;
-
 import java.util.concurrent.ArrayBlockingQueue;
 
 import stringProcessors.HalloweenCommandProcessor;
+import util.trace.bean.BeanTraceUtility;
+import util.trace.factories.FactoryTraceUtility;
+import util.trace.port.nio.NIOTraceUtility;
 
 
 
 public class AClientReaderThread extends Thread{
 	private ArrayBlockingQueue<ByteBuffer> readBuffer;
-	private SocketChannel channel;
 	private HalloweenCommandProcessor simulation;
-	private String substring ;
-	
-	private int length;
+
+
 	private Boolean isAtomic;
 
-	public AClientReaderThread(ArrayBlockingQueue<ByteBuffer> readBuffer, SocketChannel aSocketChannel, 
-							   HalloweenCommandProcessor simulation) {
+	public AClientReaderThread(ArrayBlockingQueue<ByteBuffer> readBuffer, HalloweenCommandProcessor simulation) {
 		this.readBuffer = readBuffer;
-		this.channel = aSocketChannel;
+		
 		this.simulation = simulation;
 		
 	}
@@ -34,6 +33,9 @@ public class AClientReaderThread extends Thread{
 	
 	@Override
 	public void run() {
+		FactoryTraceUtility.setTracing();
+		BeanTraceUtility.setTracing();
+		NIOTraceUtility.setTracing();
 		while(true) {
 			try {
 				ByteBuffer message = this.readBuffer.take();

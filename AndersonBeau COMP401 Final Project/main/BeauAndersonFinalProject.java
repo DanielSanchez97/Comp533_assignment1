@@ -12,16 +12,16 @@ BeauAndersonFinalProject.java - Added Spinners to the animation section.
 
 package main;
 
-import stringProcessors.*;
+import bus.uigen.CompleteOEFrame;
+import bus.uigen.ObjectEditor;
+import graphics.AHalloweenSimulation;
+import graphics.HalloweenSimulation;
+import stringProcessors.AHalloweenCommandProcessor;
+import stringProcessors.HalloweenCommandProcessor;
 import util.trace.TraceableWarning;
 import util.trace.bean.BeanTraceUtility;
 import util.trace.trickOrTreat.TrickOrTreatTraceUility;
 import util.trace.uigen.ImageYLessThanZero;
-import graphics.*;
-import bus.uigen.CompleteOEFrame;
-import bus.uigen.OEFrame;
-import bus.uigen.ObjectEditor;
-import bus.uigen.uiFrame;
 
 public class BeauAndersonFinalProject
 {

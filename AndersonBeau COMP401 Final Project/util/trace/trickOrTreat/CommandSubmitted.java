@@ -1,7 +1,5 @@
 package util.trace.trickOrTreat;
 
-import util.trace.TraceableInfo;
-
 public class CommandSubmitted extends CommandInfo{
 
 	protected String command;

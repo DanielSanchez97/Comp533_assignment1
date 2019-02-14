@@ -1,13 +1,13 @@
 package graphics;
 
+import java.util.Vector;
+
 import util.annotations.ObserverRegisterer;
 import util.annotations.ObserverTypes;
 import util.annotations.StructurePattern;
 import util.annotations.StructurePatternNames;
 import util.models.VectorChangeEvent;
 import util.models.VectorListener;
-
-import java.util.Vector;
 @StructurePattern(StructurePatternNames.VECTOR_PATTERN)
 public abstract class ALabelCollection<GenericType> implements LabelCollection<GenericType>
 {

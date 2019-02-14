@@ -1,10 +1,9 @@
 package stringProcessors;
 
-import graphics.HalloweenSimulation;
-
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 
+import graphics.HalloweenSimulation;
 import util.models.PropertyListenerRegisterer;
 import veto.PropertyChangeVetoer;
 

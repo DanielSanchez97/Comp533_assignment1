@@ -1,19 +1,15 @@
 package stringProcessors;
 
-import graphics.HalloweenSimulation;
-
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.io.Serializable;
-import java.rmi.activation.ActivationGroupDesc.CommandEnvironment;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Vector;
 
+import graphics.HalloweenSimulation;
 import util.annotations.MaxValue;
 import util.annotations.MinValue;
-import util.annotations.StepValue;
 import util.annotations.Position;
+import util.annotations.StepValue;
 import util.annotations.StructurePattern;
 import util.annotations.StructurePatternNames;
 import util.annotations.Visible;

@@ -2,6 +2,7 @@ package stringProcessors;
 
 import java.util.List;
 import java.util.Vector;
+
 import util.annotations.Visible;
 
 public class AHistoryUndoer implements Undoer

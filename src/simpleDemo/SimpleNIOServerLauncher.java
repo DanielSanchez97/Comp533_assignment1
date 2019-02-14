@@ -1,6 +1,6 @@
 package simpleDemo;
 
-import simpleServer.*;
+import simpleServer.ASimpleNIOServer;
 
 public class SimpleNIOServerLauncher {
 	public static void main(String[] args) {

@@ -18,4 +18,10 @@ public class AServerParameterListener  implements SimulationParametersListener {
 		this.server.setAtomic(newValue);
 		System.out.println("changed atomic value");
 	}
+	
+	@Override
+	public void quit(int aCode) {
+		System.exit(aCode);
+	}
+	
 }

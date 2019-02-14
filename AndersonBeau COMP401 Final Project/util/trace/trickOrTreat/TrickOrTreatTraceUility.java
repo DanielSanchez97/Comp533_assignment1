@@ -3,7 +3,6 @@ package util.trace.trickOrTreat;
 import util.trace.ImplicitKeywordKind;
 import util.trace.TraceableInfo;
 import util.trace.Tracer;
-import util.trace.bean.NotifiedPropertyChangeEvent;
 ;
 
 public class TrickOrTreatTraceUility {
