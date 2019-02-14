@@ -44,26 +44,28 @@ public class AClientParameterListener implements SimulationParametersListener{
 		
 		long start = System.nanoTime();
 		PerformanceExperimentStarted.newCase(this, start,1000);
-		//move 50 -50
-		//take 1
-		//move 300 0 twice
-		//give 1
-		//take 1
-		//move -300 0 twice
-		//give 1 
-		//take 1
+	
 		this.simulationCommand("move 50 -50");
-		for(int i=0; i<100; i++) {
+		
+		for(int i=0; i<166; i++) {
+			//move back and forth taking one thing and moving it between the two houses
 			this.client.getCommandProcessor().setInputString("take 1");
-			this.client.getCommandProcessor().setInputString("move 300 0");
-			this.client.getCommandProcessor().setInputString("move 300 0");
+			this.client.getCommandProcessor().setInputString("move 600 0");
 			this.client.getCommandProcessor().setInputString("give 1");
 			this.client.getCommandProcessor().setInputString("take 1");
-			this.client.getCommandProcessor().setInputString("move -300 0");
-			this.client.getCommandProcessor().setInputString("move -300 0");
+			this.client.getCommandProcessor().setInputString("move -600 0");
 			this.client.getCommandProcessor().setInputString("give 1");
-			this.client.getCommandProcessor().setInputString("take 1");
 		}
+		this.client.getCommandProcessor().setInputString("take 1");
+		this.client.getCommandProcessor().setInputString("move 600 0");
+		this.client.getCommandProcessor().setInputString("give 1");
+		//extra commands to make it to 1000 
+		/*this.client.getCommandProcessor().setInputString("move 300 0");
+		this.client.getCommandProcessor().setInputString("move 300 0");
+		this.client.getCommandProcessor().setInputString("give 1");
+		this.client.getCommandProcessor().setInputString("take 1");
+		this.client.getCommandProcessor().setInputString("move -300 0");
+		this.client.getCommandProcessor().setInputString("move -300 0");*/
 		long finish = System.nanoTime();
 		PerformanceExperimentEnded.newCase(this, start, finish, (finish-start), 1000);
 	}

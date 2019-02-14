@@ -39,11 +39,7 @@ public class AClientReaderThread extends Thread{
 		while(true) {
 			try {
 				ByteBuffer message = this.readBuffer.take();
-				System.out.println(this.getName());
-				System.out.println(new String("New data is " + message.toString()) );
-				
-				
-				
+			
 				String tempCommand = new String(message.array());
 				
 				String command = tempCommand.substring(tempCommand.indexOf(":")+1);
