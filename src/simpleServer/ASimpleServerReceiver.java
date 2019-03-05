@@ -8,13 +8,12 @@ import assignments.util.MiscAssignmentUtils;
 
 public class ASimpleServerReceiver implements SimpleServerReceiver{
 	private ArrayBlockingQueue<ByteBuffer> readBuffer;
-	public static final String READ_THREAD_NAME = "Read Thread";
 	private ByteBuffer current; 
+	private AReaderThread readThread;
 	
-	
-	public ASimpleServerReceiver(ArrayBlockingQueue<ByteBuffer> readBuffer) {
+	public ASimpleServerReceiver(ArrayBlockingQueue<ByteBuffer> readBuffer, AReaderThread readerThread) {
 		this.readBuffer = readBuffer;
-	
+		this.readThread = readerThread;
 	}
 	
 	
@@ -27,7 +26,6 @@ public class ASimpleServerReceiver implements SimpleServerReceiver{
 		
 		if(copy.position() == 0) {
 			current = ByteBuffer.allocate(copy.capacity());
-		
 		}
 		
 		
@@ -36,9 +34,8 @@ public class ASimpleServerReceiver implements SimpleServerReceiver{
 		if(current.remaining() == 0) {
 			
 			try {
+				readThread.setSocketChannel(aSocketChannel);
 				this.readBuffer.add(current);
-		
-				
 			}
 			catch (IllegalStateException e) {
 				

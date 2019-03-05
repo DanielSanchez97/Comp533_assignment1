@@ -44,7 +44,7 @@ public class AClientReaderThread extends Thread{
 				
 				String command = tempCommand.substring(tempCommand.indexOf(":")+1);
 				
-				System.out.println(command);
+				
 				
 				if(isAtomic) {
 					this.simulation.setConnectedToSimulation(true);

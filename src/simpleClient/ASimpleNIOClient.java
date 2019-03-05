@@ -52,7 +52,7 @@ public class ASimpleNIOClient implements SimpleNIOClient{
 	
 	@Override
 	public void initialize(String aServerHost, int aServerPort) {
-		readBuffer = new ArrayBlockingQueue<ByteBuffer>(500);
+		readBuffer = new ArrayBlockingQueue<ByteBuffer>(2000);
 		setFactories();
 		socketChannel = createSocketChannel();
 		createCommunicationObjects();
@@ -197,7 +197,7 @@ public class ASimpleNIOClient implements SimpleNIOClient{
 				ClientArgsProcessor.getServerPort(args),
 				ClientArgsProcessor.getClientName(args),
 				ClientArgsProcessor.getHeadless(args));
-
+		
 	}
 
 

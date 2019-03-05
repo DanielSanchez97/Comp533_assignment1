@@ -22,12 +22,7 @@ import util.trace.Tracer;
 //@Group("Test group name")
 public class OneClientConnection extends PassFailJUnitTestCase {
 	
-	
-//	public OneClientCorrectConnectionTestCase() {
-////		super("Prompt printer test case");
-//		super("One client correct connection test case");
-//
-//	}
+
 	
 	@Test
 	public void test() {

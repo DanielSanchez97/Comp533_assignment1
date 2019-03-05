@@ -42,11 +42,13 @@ public class ASimpleNIOServer  implements SimpleNIOServer {
 	}
 	
 	public void initialize(int aServerPort) {
-		readBuffer = new ArrayBlockingQueue<ByteBuffer>(500);
+		readBuffer = new ArrayBlockingQueue<ByteBuffer>(2000);
+		createReadThread();
 		setFactories();
 		serverSocketChannel = createSocketChannel(aServerPort);
 		createCommunicationObjects();
 		makeServerConnectable(aServerPort);
+		
 		launchConsole();
 		
 	}
@@ -56,8 +58,8 @@ public class ASimpleNIOServer  implements SimpleNIOServer {
 		
 	}
 	
-	protected void createReadThread(SocketChannel aSocketChannel) {
-		readThread = new AReaderThread(this.readBuffer, aSocketChannel, this);
+	protected void createReadThread() {
+		readThread = new AReaderThread(this.readBuffer, this);
 		readThread.setName(READ_THREAD_NAME);
 		readThread.start();
 	}
@@ -83,7 +85,7 @@ public class ASimpleNIOServer  implements SimpleNIOServer {
 	
 	protected void createReceiver() {
 
-		simpleServerReceiver = new ASimpleServerReceiver(readBuffer);
+		simpleServerReceiver = new ASimpleServerReceiver(readBuffer, readThread);
 	}
 	
 	protected void launchConsole() {
@@ -97,7 +99,6 @@ public class ASimpleNIOServer  implements SimpleNIOServer {
 
 	@Override
 	public void socketChannelAccepted(ServerSocketChannel aServerSocketChannel, SocketChannel aSocketChannel) {
-		
 		addListeners(aSocketChannel);
 	}
 	
@@ -109,7 +110,6 @@ public class ASimpleNIOServer  implements SimpleNIOServer {
 	protected void addListeners(SocketChannel aSocketChannel) {
 		addWriteBufferListener(aSocketChannel);
 		addReadListener(aSocketChannel);	
-		createReadThread(aSocketChannel);
 	}
 	
 	protected void addWriteBufferListener(SocketChannel aSocketChannel) {
@@ -123,7 +123,7 @@ public class ASimpleNIOServer  implements SimpleNIOServer {
 	
 	public void Broadcast(SocketChannel aSocketChannel, ByteBuffer message) {
 		//parameter is the original channel that the message to be broadcasted was
-		System.out.println("calling broadcast");
+		
 		 for (SocketChannel socketChannel : channels) {
 			if(socketChannel.equals(aSocketChannel) && !isAtomic) {
 				continue;
@@ -152,6 +152,7 @@ public class ASimpleNIOServer  implements SimpleNIOServer {
 		FactoryTraceUtility.setTracing();
 		NIOTraceUtility.setTracing();
 		BeanTraceUtility.setTracing();// not really needed, but does not hurt
+		
 		SimpleNIOServer aServer = new ASimpleNIOServer();
 		aServer.initialize(ServerArgsProcessor.getServerPort(args));
 

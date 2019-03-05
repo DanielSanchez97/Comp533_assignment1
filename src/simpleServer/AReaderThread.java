@@ -16,11 +16,15 @@ public class AReaderThread extends Thread {
 	private SocketChannel channel;
 	private ASimpleNIOServer server;
 
-	public AReaderThread(ArrayBlockingQueue<ByteBuffer> readBuffer, SocketChannel aSocketChannel, ASimpleNIOServer server) {
+	public AReaderThread(ArrayBlockingQueue<ByteBuffer> readBuffer, ASimpleNIOServer server) {
 		this.readBuffer = readBuffer;
-		this.channel = aSocketChannel;
 		this.server = server;
 	}
+	
+	public void setSocketChannel(SocketChannel aSocketChannel) {
+		this.channel = aSocketChannel;
+	}
+	
 	
 	@Override
 	public void run() {

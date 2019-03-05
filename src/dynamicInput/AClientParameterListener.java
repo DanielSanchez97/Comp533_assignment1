@@ -4,6 +4,7 @@ import java.util.Timer;
 
 import assignments.util.inputParameters.SimulationParametersListener;
 import simpleClient.ASimpleNIOClient;
+import util.trace.Tracer;
 import util.trace.port.PerformanceExperimentEnded;
 import util.trace.port.PerformanceExperimentStarted;
 
@@ -68,6 +69,11 @@ public class AClientParameterListener implements SimulationParametersListener{
 		this.client.getCommandProcessor().setInputString("move -300 0");*/
 		long finish = System.nanoTime();
 		PerformanceExperimentEnded.newCase(this, start, finish, (finish-start), 1000);
+	}
+	
+	@Override
+	public void trace(boolean newValue) {
+		Tracer.showInfo(newValue);
 	}
 	
 }
