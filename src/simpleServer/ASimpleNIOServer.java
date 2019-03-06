@@ -55,7 +55,6 @@ public class ASimpleNIOServer  implements SimpleNIOServer {
 	
 	protected void setFactories() {
 		AcceptCommandFactorySelector.setFactory(new AReadingAcceptCommandFactory());
-		
 	}
 	
 	protected void createReadThread() {
@@ -105,6 +104,7 @@ public class ASimpleNIOServer  implements SimpleNIOServer {
 	protected void addReadListener(SocketChannel aSocketChannel) {
 		NIOManagerFactory.getSingleton().addReadListener(aSocketChannel,
 				simpleServerReceiver);
+		
 	}
 	
 	protected void addListeners(SocketChannel aSocketChannel) {
@@ -156,5 +156,10 @@ public class ASimpleNIOServer  implements SimpleNIOServer {
 		SimpleNIOServer aServer = new ASimpleNIOServer();
 		aServer.initialize(ServerArgsProcessor.getServerPort(args));
 
+	}
+
+	@Override
+	public void setListening(boolean value) {
+		simpleServerReceiver.setListening(value);
 	}
 }
