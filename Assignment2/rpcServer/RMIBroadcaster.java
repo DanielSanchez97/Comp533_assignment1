@@ -11,7 +11,7 @@ import rpcClient.RMICommandProcessor;
 
 public interface RMIBroadcaster extends Remote {
 	
-	public void Initialize(RMIServer server) throws RemoteException;
+	public void Initialize(ARMIServer server) throws RemoteException;
 	
 	public void Broadcast(String Command, int id) throws RemoteException;
 	

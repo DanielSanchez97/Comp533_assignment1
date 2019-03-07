@@ -16,7 +16,7 @@ import util.trace.misc.ThreadDelayed;
 import util.trace.port.consensus.ConsensusTraceUtility;
 import util.trace.port.nio.NIOTraceUtility;
 import util.trace.port.rpc.rmi.RMITraceUtility;
-import util.trace.port.consensus.*;
+
 
 public class ARMIServer implements RMIServer {
 	private static final String NAME = "Broadcast";
@@ -31,10 +31,13 @@ public class ARMIServer implements RMIServer {
 	}
 	
 	public void initialize(int rPORT, int nPort) {
+		NIOServer = new ASimpleNIOServer();
+		NIOServer.initialize(nPort);
 		try {
 			System.out.println(rPORT);
 			System.out.println(nPort);
 			Registry rmiRegistry = LocateRegistry.getRegistry("127.0.0.1", rPORT);
+			
 	
 			broadcaster = new ARMIBroadcaster();
 			broadcaster.Initialize(this);
@@ -45,9 +48,23 @@ public class ARMIServer implements RMIServer {
 			e.printStackTrace();
 		}
 		
-		//NIOServer = new ASimpleNIOServer();
-		//NIOServer.initialize(nPort);
 		
+		
+	}
+	
+	public void setAtomic(rpcClient.RMIClient.Broadcast state) {
+		switch (state) {
+		case Atomic:
+			NIOServer.setAtomic(true);
+			break;
+			
+		case NonAtomic:
+			NIOServer.setAtomic(false);
+			break;
+			
+		default:
+			break;
+		}
 	}
 	
 	public static void main(String[] args) {

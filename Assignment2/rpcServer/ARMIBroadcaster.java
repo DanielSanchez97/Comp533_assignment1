@@ -16,13 +16,15 @@ public class ARMIBroadcaster implements RMIBroadcaster,CommunicationStateNames {
 	private Map<Integer, RMICommandProcessor> callbacks;
 	private int id =0;
 	private rpcClient.RMIClient.Broadcast s_Broadcast; //current Broadcast state 
-	private RMIServer server;
+	private ARMIServer server;
 
 	@Override
-	public void Initialize(RMIServer server) {
+	public void Initialize(ARMIServer server) {
 		// TODO Auto-generated method stub
 		callbacks = new HashMap<Integer, RMICommandProcessor>();
 		this.server = server;
+		this.server.setAtomic(rpcClient.RMIClient.Broadcast.Atomic);
+		
 		s_Broadcast =  rpcClient.RMIClient.Broadcast.Atomic;
 	}
 
@@ -69,6 +71,7 @@ public class ARMIBroadcaster implements RMIBroadcaster,CommunicationStateNames {
 			callbacks.get(i).setBroadcast(state);
 		}
 		this.s_Broadcast = state;
+		this.server.setAtomic(state);
 	}
 
 	@Override

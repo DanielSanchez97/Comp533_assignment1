@@ -49,7 +49,7 @@ public class ASimpleNIOServer  implements SimpleNIOServer {
 		createCommunicationObjects();
 		makeServerConnectable(aServerPort);
 		
-		launchConsole();
+		//launchConsole();
 		
 	}
 	

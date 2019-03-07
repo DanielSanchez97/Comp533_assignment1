@@ -62,8 +62,8 @@ public class ASimpleNIOClient implements SimpleNIOClient{
 		createSimulation();
 		createReadThread();
 		
-		commandInput.setConnectedToSimulation(!this.isAtomic);
-		launchConsole();
+		//commandInput.setConnectedToSimulation(!this.isAtomic);
+		//launchConsole();
 		
 	}
 
@@ -231,7 +231,9 @@ public class ASimpleNIOClient implements SimpleNIOClient{
 		return this.commandInput;
 	}
 
-
+	public HalloweenSimulation getSimulation() {
+		return this.simulation;
+	}
 
 
 
