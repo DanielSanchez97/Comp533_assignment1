@@ -21,5 +21,6 @@ public interface RMIBroadcaster extends Remote {
 	
 	public int Register(RMICommandProcessor CommandTool) throws RemoteException;
 		
+	public void setMetaState(boolean newValue) throws RemoteException;
 	
 }

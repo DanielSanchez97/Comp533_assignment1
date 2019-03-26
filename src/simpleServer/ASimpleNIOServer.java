@@ -25,7 +25,7 @@ import util.trace.factories.FactoryTraceUtility;
 import util.trace.port.nio.NIOTraceUtility;
 import util.trace.port.nio.SocketChannelBound;
 
-@Tags(DistributedTags.SERVER)
+//@Tags(DistributedTags.SERVER)
 public class ASimpleNIOServer  implements SimpleNIOServer {
 	SimpleServerReceiver simpleServerReceiver;
 	ServerSocketChannel serverSocketChannel;

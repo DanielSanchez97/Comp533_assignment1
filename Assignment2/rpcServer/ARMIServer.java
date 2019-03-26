@@ -16,11 +16,12 @@ import util.trace.misc.ThreadDelayed;
 import util.trace.port.consensus.ConsensusTraceUtility;
 import util.trace.port.nio.NIOTraceUtility;
 import util.trace.port.rpc.rmi.RMITraceUtility;
+import util.annotations.Tags;
+import util.tags.DistributedTags;
 
-
+@Tags({DistributedTags.SERVER, DistributedTags.RMI,DistributedTags.NIO})
 public class ARMIServer implements RMIServer {
 	private static final String NAME = "Broadcast";
-	
 	
 	protected SimpleNIOServer NIOServer;
 	
@@ -34,8 +35,7 @@ public class ARMIServer implements RMIServer {
 		NIOServer = new ASimpleNIOServer();
 		NIOServer.initialize(nPort);
 		try {
-			System.out.println(rPORT);
-			System.out.println(nPort);
+			
 			Registry rmiRegistry = LocateRegistry.getRegistry("127.0.0.1", rPORT);
 			
 	

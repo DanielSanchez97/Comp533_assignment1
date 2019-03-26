@@ -4,8 +4,9 @@
 	<classpathentry kind="src" path="GIPC/src"/>
 	<classpathentry kind="src" path="AndersonBeau COMP401 Final Project"/>
 	<classpathentry kind="src" path="GraderBasics/src"/>
-	<classpathentry kind="src" path="Comp533LocalChecks"/>
 	<classpathentry kind="src" path="Assignment2"/>
+	<classpathentry kind="src" path="Comp533LocalChecks/src"/>
+	<classpathentry excluding="src/" kind="src" path="Comp533LocalChecks"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/J2SE-1.5">
 		<accessrules>
 			<accessrule kind="accessible" pattern="javax/**"/>

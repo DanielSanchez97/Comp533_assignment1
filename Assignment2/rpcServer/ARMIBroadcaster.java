@@ -30,11 +30,11 @@ public class ARMIBroadcaster implements RMIBroadcaster,CommunicationStateNames {
 
 	@Override
 	public synchronized void Broadcast(String command, int id) throws RemoteException {
-		RemoteProposeRequestReceived.newCase(this, CommunicationStateNames.COMMAND,-1, command);
+	//	RemoteProposeRequestReceived.newCase(this, CommunicationStateNames.COMMAND,-1, command);
 		switch (s_Broadcast) {
 			case Atomic:
 				for(Integer i: callbacks.keySet()) {
-					ProposalLearnedNotificationSent.newCase(this, CommunicationStateNames.COMMAND,-1, command);
+					//ProposalLearnedNotificationSent.newCase(this, CommunicationStateNames.COMMAND,-1, command);
 					callbacks.get(i).runCommand(command);
 					
 				}
@@ -43,7 +43,7 @@ public class ARMIBroadcaster implements RMIBroadcaster,CommunicationStateNames {
 			case NonAtomic:
 				for(Integer i: callbacks.keySet()) {
 					if(i != id) {
-						ProposalLearnedNotificationSent.newCase(this, CommunicationStateNames.COMMAND,-1, command);
+						//ProposalLearnedNotificationSent.newCase(this, CommunicationStateNames.COMMAND,-1, command);
 						callbacks.get(i).runCommand(command);
 					}
 				}
@@ -88,6 +88,12 @@ public class ARMIBroadcaster implements RMIBroadcaster,CommunicationStateNames {
 		}
 		
 		return id;
+	}
+	@Override
+	public synchronized void setMetaState(boolean newValue) throws RemoteException{
+		for(Integer i: callbacks.keySet()) {
+			callbacks.get(i).setMetaState(newValue);
+		}
 	}
 
 }

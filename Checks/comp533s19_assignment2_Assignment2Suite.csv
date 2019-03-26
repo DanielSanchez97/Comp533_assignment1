@@ -1,0 +1,2 @@
+#,Time,%Passes,Change,Test,Pass,Partial,Fail,Untested
+0,Thu Mar 07 10:56:08 EST 2019,0,0,Assignment2OneClientSuite, , ,RMINIOOneClientConnection- RMINIOOneClientReadWriteAtomic- RMINIOOneClientReadWriteNonAtomic- RMINIOStaticArguments- ,RMINIOClientMetaStateBroadcast RMINIOClientMetaStateNoBroadcast RMINIOServerMetaStateBroadcast RMINIOServerMetaStateNoBroadcast RMINIOTwoClientConnection RMINIOTwoClientReadWriteAtomic RMINIOTwoClientReadWriteNonAtomic ,

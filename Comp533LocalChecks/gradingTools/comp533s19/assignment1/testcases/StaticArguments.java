@@ -14,16 +14,17 @@ import grader.basics.junit.TestCaseResult;
 import grader.basics.project.NotGradableException;
 import grader.basics.project.Project;
 import grader.basics.testcase.PassFailJUnitTestCase;
+import gradingTools.comp533s19.assignment1.Assignment1Suite;
 import gradingTools.utils.RunningProjectUtils;
 import util.annotations.MaxValue;
 import util.trace.Tracer;
 @MaxValue(20)
 public class StaticArguments extends PassFailJUnitTestCase {
-	public static final List<String> DEFAULT_CLIENT_ARGS = Arrays.asList("localhost", "8000", ClientArgsProcessor.DEFAULT_CLIENT_NAME, "true");
-	public static final List<String> DEFAULT_SERVER_ARGS = Arrays.asList("8000", "localhost");
+	public static final List<String> DEFAULT_CLIENT_ARGS = Arrays.asList("localhost", ""+ServerPort.SERVER_PORT, ClientArgsProcessor.DEFAULT_CLIENT_NAME, "true");
+	public static final List<String> DEFAULT_SERVER_ARGS = Arrays.asList(""+ServerPort.SERVER_PORT, "localhost");
 
 	private static final String DEFAULT_HOST = "localhost";
-	private static final String DEFAULT_PORT = "8000";
+	private static final String DEFAULT_PORT = ""+ServerPort.SERVER_PORT;
 	
 	private static final String TEST_HOST = "classroom.cs.unc.edu";
 	private static final String TEST_PORT = "4242";
@@ -123,7 +124,7 @@ public class StaticArguments extends PassFailJUnitTestCase {
 		RunningProject interactiveInputProject = null;
 		StaticArgumentsTestInputGenerator inputGenerator = new StaticArgumentsTestInputGenerator();
 		try {
-			interactiveInputProject = RunningProjectUtils.runProject(project, 15, inputGenerator);
+			interactiveInputProject = RunningProjectUtils.runProject(project, Assignment1Suite.getProcessTimeOut(), inputGenerator);
 			String incOutput = interactiveInputProject.await();
 		} catch (Exception e){
 			if (!(e instanceof TimeoutException)) {

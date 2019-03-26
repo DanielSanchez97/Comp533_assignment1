@@ -22,7 +22,7 @@ import util.trace.bean.BeanTraceUtility;
 import util.trace.factories.FactoryTraceUtility;
 import util.trace.port.nio.NIOTraceUtility;
 
-@Tags({DistributedTags.CLIENT})
+//@Tags({DistributedTags.CLIENT})
 public class ASimpleNIOClient implements SimpleNIOClient{
 	String clientName;
 	SimpleNIOClientSender simpleClientSender;

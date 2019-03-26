@@ -17,8 +17,12 @@ import util.trace.port.consensus.ConsensusTraceUtility;
 import util.trace.port.consensus.communication.CommunicationStateNames;
 import util.trace.port.nio.NIOTraceUtility;
 import util.trace.port.rpc.rmi.RMITraceUtility;
+import util.trace.port.PerformanceExperimentStarted;
 import util.trace.port.consensus.*;
+import util.annotations.Tags;
+import util.tags.DistributedTags;
 
+@Tags({DistributedTags.CLIENT, DistributedTags.RMI, DistributedTags.NIO})
 public class ARMIClient implements RMIClient, CommunicationStateNames{
 	private static final String LOOKUP = "Broadcast";
 	private ARMICommandProcessor commandProcessor;
@@ -27,6 +31,9 @@ public class ARMIClient implements RMIClient, CommunicationStateNames{
 	private Broadcast s_Broadcast;
 	private IPC s_IPC;
 	private ASimpleNIOClient NIOclient;
+	private boolean metaState = false;
+	private int sleepTime =0;
+	private boolean isLocal = false;
 	
 
 	public ARMIClient() {
@@ -36,8 +43,7 @@ public class ARMIClient implements RMIClient, CommunicationStateNames{
 	@Override
 	public void Initialize(int rPORT, int sPORT, String host ,String name) {
 		try {
-			System.out.println(rPORT);
-			System.out.println(sPORT);
+
 			Registry rmiRegistry = LocateRegistry.getRegistry("127.0.0.1", rPORT);
 	
 			commandProcessor = new ARMICommandProcessor();
@@ -76,15 +82,17 @@ public class ARMIClient implements RMIClient, CommunicationStateNames{
 	}
 	
 	public void runCommand(String command) {
-		ProposalLearnedNotificationReceived.newCase(this,  CommunicationStateNames.COMMAND, -1, command);
-		System.out.println(command);
-		ProposedStateSet.newCase(this,  CommunicationStateNames.COMMAND, -1, command);
+		//ProposalLearnedNotificationReceived.newCase(this,  CommunicationStateNames.COMMAND, -1, command);
+		//System.out.println(command);
+		
+		//ProposedStateSet.newCase(this,  CommunicationStateNames.COMMAND, -1, command);
 		NIOclient.getCommandProcessor().setInputString(command);
 	}
 	
 	public void setIPC(IPC state) {
 		ProposalLearnedNotificationReceived.newCase(this,  CommunicationStateNames.IPC_MECHANISM, -1, state);
-		System.out.println(state.toString());
+		//System.out.println(state.toString());
+		this.setMetaState(true);
 		ProposedStateSet.newCase(this,  CommunicationStateNames.IPC_MECHANISM, -1, state);
 		s_IPC = state;
 		switch (state) {
@@ -107,14 +115,17 @@ public class ARMIClient implements RMIClient, CommunicationStateNames{
 	
 	public void setBroadcast(Broadcast state) {
 		ProposalLearnedNotificationReceived.newCase(this,  CommunicationStateNames.BROADCAST_MODE, -1, state);
-		System.out.println(state.toString());
+		//System.out.println(state.toString());
+		this.setMetaState(true);
 		ProposedStateSet.newCase(this,  CommunicationStateNames.BROADCAST_MODE, -1, state);
 		s_Broadcast = state;
 		
 		switch (state) {
 		case Atomic:
 			NIOclient.setAtomic(true);
-			NIOclient.getCommandProcessor().setConnectedToSimulation(true);
+			if(s_IPC == IPC.RMI) {
+				NIOclient.getCommandProcessor().setConnectedToSimulation(true);
+			}
 			break;
 
 		case NonAtomic:
@@ -127,10 +138,17 @@ public class ARMIClient implements RMIClient, CommunicationStateNames{
 	}
 	
 	public void processCommand(String command) {
+		if(isLocal) {
+			NIOclient.getCommandProcessor().setInputString(command);
+			return;
+		}
+		
+		
+		util.misc.ThreadSupport.sleep(sleepTime);
 		
 		switch (s_IPC) {
 		case RMI:
-			ProposalMade.newCase(this, CommunicationStateNames.COMMAND, -1, command);
+			//ProposalMade.newCase(this, CommunicationStateNames.COMMAND, -1, command);
 			try {
 				
 				switch (s_Broadcast) {
@@ -146,12 +164,9 @@ public class ARMIClient implements RMIClient, CommunicationStateNames{
 					default:
 						break;
 				}
-				
-				
-				RemoteProposeRequestSent.newCase(this,  CommunicationStateNames.COMMAND, -1, command);
+			
+				//RemoteProposeRequestSent.newCase(this,  CommunicationStateNames.COMMAND, -1, command);
 				broadcaster.Broadcast(command, id);
-				
-				
 				
 			} catch (RemoteException e) {
 				// TODO Auto-generated catch block
@@ -159,7 +174,6 @@ public class ARMIClient implements RMIClient, CommunicationStateNames{
 			}
 			break;
 
-		
 		case NIO:
 			NIOclient.getCommandProcessor().setInputString(command);
 			
@@ -170,6 +184,10 @@ public class ARMIClient implements RMIClient, CommunicationStateNames{
 	}
 	
 	public void processIPC(IPC state) {
+		if(!this.metaState) {
+			return;
+		}
+		util.misc.ThreadSupport.sleep(sleepTime);
 		ProposalMade.newCase(this, CommunicationStateNames.IPC_MECHANISM, -1, state);
 		try {
 			RemoteProposeRequestSent.newCase(this,  CommunicationStateNames.IPC_MECHANISM, -1, state);
@@ -181,6 +199,10 @@ public class ARMIClient implements RMIClient, CommunicationStateNames{
 	}
 	
 	public void processBroadcast(Broadcast state) {
+		if(!this.metaState) {
+			return;
+		}
+		util.misc.ThreadSupport.sleep(sleepTime);
 		ProposalMade.newCase(this, CommunicationStateNames.BROADCAST_MODE, -1, state);
 		try {
 			RemoteProposeRequestSent.newCase(this,  CommunicationStateNames.IPC_MECHANISM, -1, state);
@@ -198,10 +220,35 @@ public class ARMIClient implements RMIClient, CommunicationStateNames{
 		RMITraceUtility.setTracing();
 		ConsensusTraceUtility.setTracing();
 		ThreadDelayed.enablePrint();
-
+	
+		
 		ARMIClient aCLient = new ARMIClient();
 		aCLient.Initialize(ClientArgsProcessor.getRegistryPort(args), ClientArgsProcessor.getServerPort(args),ClientArgsProcessor.getServerHost(args),ClientArgsProcessor.getClientName(args));
 	}
+	
+	public void setMetaState(boolean value) {
+		this.metaState = value;
+	}
+	
+	public void processMetaState(boolean value) {
+		if(!value) {
+			try {
+				broadcaster.setMetaState(value);
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		
+		else {
+			setMetaState(value);
+		}
+	}
+	
+	public void setLocal(boolean newValue) {
+		this.isLocal = newValue;
+	}
+	
 
 
 }

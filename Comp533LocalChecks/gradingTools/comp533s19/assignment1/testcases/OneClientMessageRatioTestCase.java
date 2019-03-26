@@ -10,6 +10,8 @@ import grader.basics.junit.TestCaseResult;
 import grader.basics.project.NotGradableException;
 import grader.basics.project.Project;
 import grader.basics.testcase.PassFailJUnitTestCase;
+import gradingTools.comp533s19.assignment1.Assignment1OneClientSuite;
+import gradingTools.comp533s19.assignment1.Assignment1Suite;
 import gradingTools.utils.RunningProjectUtils;
 import util.trace.Tracer;
 
@@ -33,7 +35,7 @@ public class OneClientMessageRatioTestCase extends PassFailJUnitTestCase {
 			OneClientMessageRatioTestInputGenerator anOutputBasedInputGenerator = new OneClientMessageRatioTestInputGenerator(atomic);
 			RunningProject interactiveInputProject = null;
 			try {
-				interactiveInputProject = RunningProjectUtils.runProject(project, 15,
+				interactiveInputProject = RunningProjectUtils.runProject(project, Assignment1Suite.getProcessTimeOut(),
 						anOutputBasedInputGenerator);
 				String incOutput = interactiveInputProject.await();
 			} catch (Exception e){
@@ -43,7 +45,7 @@ public class OneClientMessageRatioTestCase extends PassFailJUnitTestCase {
 				interactiveInputProject.getProcessOutput().forEach((name, output) -> Tracer.info(this, "*** " + name + " ***\n" + output));
 			}
 			int correct = 0;
-			int offByOneCorrect = 0;
+			int correctAssumingBroadcast = 0;
 			int possible = 4;
 			
 			int numSeen = anOutputBasedInputGenerator.getClientWriteCount();
@@ -53,7 +55,7 @@ public class OneClientMessageRatioTestCase extends PassFailJUnitTestCase {
 				correct++;
 			} else {
 				if (numSeen == expected+1) {
-					offByOneCorrect ++;
+					correctAssumingBroadcast ++;
 				} 
 				message.append("Incorrect number of client writes (saw " + numSeen + ", expected " + expected + ").");
 			}
@@ -64,7 +66,7 @@ public class OneClientMessageRatioTestCase extends PassFailJUnitTestCase {
 				correct++;
 			} else {
 				if (numSeen == expected+1) {
-					offByOneCorrect ++;
+					correctAssumingBroadcast ++;
 				}
 				if (message.length() > 0) {
 					message.append(" ");
@@ -78,7 +80,7 @@ public class OneClientMessageRatioTestCase extends PassFailJUnitTestCase {
 				correct++;
 			} else {
 				if (numSeen == expected+1) {
-					offByOneCorrect ++;
+					correctAssumingBroadcast ++;
 				} 
 				if (message.length() > 0) {
 					message.append(" ");
@@ -92,14 +94,14 @@ public class OneClientMessageRatioTestCase extends PassFailJUnitTestCase {
 				correct++;
 			} else {
 				if (numSeen == expected+1) {
-					offByOneCorrect ++;
+					correctAssumingBroadcast ++;
 				} 
 				if (message.length() > 0) {
 					message.append(" ");
 				}
 				message.append("Incorrect number of server reads (saw " + numSeen + ", expected " + expected + ").");
 			}
-			if (offByOneCorrect == possible) {
+			if (correctAssumingBroadcast == possible) {
 				correct = possible;
 			}
 			if (correct == possible) {
@@ -116,15 +118,16 @@ public class OneClientMessageRatioTestCase extends PassFailJUnitTestCase {
 	}
 	
 	private static void setupProcesses() {
-		BasicExecutionSpecificationSelector.getBasicExecutionSpecification().setProcessTeams(Arrays.asList("DistributedProgram"));
-		BasicExecutionSpecificationSelector.getBasicExecutionSpecification().setTerminatingProcesses("DistributedProgram", Arrays.asList("Client"));
-		BasicExecutionSpecificationSelector.getBasicExecutionSpecification().setProcesses("DistributedProgram", Arrays.asList("Server", "Client"));
-		BasicExecutionSpecificationSelector.getBasicExecutionSpecification().setEntryTags("Server", Arrays.asList("Server"));
-		BasicExecutionSpecificationSelector.getBasicExecutionSpecification().setEntryTags("Client", Arrays.asList("Client"));
-		BasicExecutionSpecificationSelector.getBasicExecutionSpecification().setArgs("Server", StaticArguments.DEFAULT_SERVER_ARGS);
-		BasicExecutionSpecificationSelector.getBasicExecutionSpecification().setArgs("Client", StaticArguments.DEFAULT_CLIENT_ARGS);
-		BasicExecutionSpecificationSelector.getBasicExecutionSpecification().setSleepTime("Server", 2000);
-		BasicExecutionSpecificationSelector.getBasicExecutionSpecification().setSleepTime("Client", 5000);
-		BasicExecutionSpecificationSelector.getBasicExecutionSpecification().getProcessTeams().forEach(team -> System.out.println("### " + team));
+		Assignment1OneClientSuite.oneClientSetupProcesses();
+//		BasicExecutionSpecificationSelector.getBasicExecutionSpecification().setProcessTeams(Arrays.asList("DistributedProgram"));
+//		BasicExecutionSpecificationSelector.getBasicExecutionSpecification().setTerminatingProcesses("DistributedProgram", Arrays.asList("Client"));
+//		BasicExecutionSpecificationSelector.getBasicExecutionSpecification().setProcesses("DistributedProgram", Arrays.asList("Server", "Client"));
+//		BasicExecutionSpecificationSelector.getBasicExecutionSpecification().setEntryTags("Server", Arrays.asList("Server"));
+//		BasicExecutionSpecificationSelector.getBasicExecutionSpecification().setEntryTags("Client", Arrays.asList("Client"));
+//		BasicExecutionSpecificationSelector.getBasicExecutionSpecification().setArgs("Server", StaticArguments.DEFAULT_SERVER_ARGS);
+//		BasicExecutionSpecificationSelector.getBasicExecutionSpecification().setArgs("Client", StaticArguments.DEFAULT_CLIENT_ARGS);
+//		BasicExecutionSpecificationSelector.getBasicExecutionSpecification().setSleepTime("Server", 2000);
+//		BasicExecutionSpecificationSelector.getBasicExecutionSpecification().setSleepTime("Client", 5000);
+//		BasicExecutionSpecificationSelector.getBasicExecutionSpecification().getProcessTeams().forEach(team -> System.out.println("### " + team));
 	}
 }

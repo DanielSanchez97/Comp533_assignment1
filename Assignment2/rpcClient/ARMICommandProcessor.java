@@ -6,6 +6,9 @@ import assignments.util.inputParameters.SimulationParametersListener;
 import rpcClient.RMIClient.Broadcast;
 import rpcClient.RMIClient.IPC;
 import util.interactiveMethodInvocation.IPCMechanism;
+import util.trace.Tracer;
+import util.trace.port.PerformanceExperimentEnded;
+import util.trace.port.PerformanceExperimentStarted;
 
 public class ARMICommandProcessor implements RMICommandProcessor, SimulationParametersListener {
 	private ARMIClient client;
@@ -48,6 +51,10 @@ public class ARMICommandProcessor implements RMICommandProcessor, SimulationPara
 	}
 	
 	public void broadcastMetaState(boolean newValue) {
+		this.client.processMetaState(newValue);
+	}
+	
+	public void atomicBroadcast(boolean newValue) {
 		if(newValue) {
 			this.client.processBroadcast(Broadcast.Atomic);
 		}
@@ -55,6 +62,39 @@ public class ARMICommandProcessor implements RMICommandProcessor, SimulationPara
 			this.client.processBroadcast(Broadcast.NonAtomic);
 		}
 	
+	}
+	
+	@Override
+	public void setMetaState(boolean newvalue) {
+		this.client.setMetaState(newvalue);
+	}
+	
+	@Override
+	public void localProcessingOnly(boolean newValue) {
+		this.client.setLocal(newValue);
+		System.out.println("changed local value");
+	}
+	
+	@Override
+	public void experimentInput() {
+		long start = System.nanoTime();
+		PerformanceExperimentStarted.newCase(this, start,1000);
+		
+		for(int i=0; i<500; i++) {
+			simulationCommand("take 1");
+			simulationCommand("give 1");
+		}
+		
+		
+		long finish = System.nanoTime();
+		PerformanceExperimentEnded.newCase(this, start, finish, (finish-start), 1000);
+	
+	}
+	
+
+	@Override
+	public void trace(boolean newValue) {
+		Tracer.showInfo(newValue);
 	}
 
 }

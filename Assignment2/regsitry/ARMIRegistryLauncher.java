@@ -1,12 +1,13 @@
 package regsitry;
 
 import java.rmi.registry.LocateRegistry;
-import java.rmi.registry.Registry;
+
 import java.util.Scanner;
+import util.annotations.Tags;
+import util.tags.DistributedTags;
 
-import org.junit.jupiter.api.Tags;
 
-
+@Tags({DistributedTags.REGISTRY, DistributedTags.RMI})
 public class ARMIRegistryLauncher implements RMIRegistryLauncher{
 	
 	public static void main(String[] args) {

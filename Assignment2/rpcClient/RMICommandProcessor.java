@@ -11,4 +11,5 @@ public interface RMICommandProcessor extends Remote {
 	public void runCommand(String command) throws RemoteException;
 	public void setIPC(IPC newMode) throws RemoteException;
 	public void setBroadcast(Broadcast newMode) throws RemoteException;
+	public void setMetaState(boolean newValue) throws RemoteException;
 }
