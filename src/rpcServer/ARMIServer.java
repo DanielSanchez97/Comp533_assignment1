@@ -15,11 +15,13 @@ import util.trace.factories.FactoryTraceUtility;
 import util.trace.misc.ThreadDelayed;
 import util.trace.port.consensus.ConsensusTraceUtility;
 import util.trace.port.nio.NIOTraceUtility;
+import util.trace.port.rpc.rmi.RMIObjectRegistered;
+import util.trace.port.rpc.rmi.RMIRegistryLocated;
 import util.trace.port.rpc.rmi.RMITraceUtility;
 import util.annotations.Tags;
 import util.tags.DistributedTags;
 
-@Tags({DistributedTags.SERVER, DistributedTags.RMI,DistributedTags.NIO})
+@Tags({DistributedTags.SERVER, DistributedTags.RMI, DistributedTags.NIO})
 public class ARMIServer implements RMIServer {
 	private static final String NAME = "Broadcast";
 	
@@ -31,18 +33,20 @@ public class ARMIServer implements RMIServer {
 		
 	}
 	
-	public void initialize(int rPORT, int nPort) {
+	public void initialize(int rPORT, int nPort, String registryHost) {
 		NIOServer = new ASimpleNIOServer();
 		NIOServer.initialize(nPort);
 		try {
 			
-			Registry rmiRegistry = LocateRegistry.getRegistry("127.0.0.1", rPORT);
-			
+			Registry rmiRegistry = LocateRegistry.getRegistry(registryHost, rPORT);
+			RMIRegistryLocated.newCase(this, registryHost, rPORT, rmiRegistry);
 	
 			broadcaster = new ARMIBroadcaster();
 			broadcaster.Initialize(this);
 			UnicastRemoteObject.exportObject(broadcaster, 0);
+			RMIObjectRegistered.newCase(this, NAME,broadcaster , rmiRegistry);
 			rmiRegistry.rebind(NAME,broadcaster);
+			
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -76,6 +80,6 @@ public class ARMIServer implements RMIServer {
 		ThreadDelayed.enablePrint();
 
 		ARMIServer aServer = new ARMIServer();
-		aServer.initialize(ServerArgsProcessor.getRegistryPort(args), ServerArgsProcessor.getServerPort(args));
+		aServer.initialize(ServerArgsProcessor.getRegistryPort(args), ServerArgsProcessor.getServerPort(args), ServerArgsProcessor.getRegistryHost(args));
 	}
 }

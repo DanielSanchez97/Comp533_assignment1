@@ -5,7 +5,7 @@ import java.rmi.RemoteException;
 
 public interface RMIServer extends Remote{
 
-	public void initialize(int rPORT, int nPort) throws RemoteException;
+	public void initialize(int rPORT, int nPort, String host) throws RemoteException;
 
 	
 	

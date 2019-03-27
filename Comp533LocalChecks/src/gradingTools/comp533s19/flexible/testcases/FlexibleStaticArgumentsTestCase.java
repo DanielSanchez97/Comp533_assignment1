@@ -266,6 +266,7 @@ public class FlexibleStaticArgumentsTestCase extends PassFailJUnitTestCase {
 			System.err.println("Interrupted at " + Thread.currentThread().getStackTrace()[0]);
 			Thread.currentThread().interrupt();
 		}
+		System.out.println(testRegistryRMIHost);
 		String result = checkArgs(project, scoring, testServerNIOPort, testRegistryRMIHost, testServerRMIPort, testServerGIPCPort, testNIOHost, testClientNIOPort, testName, testHeadless, testClientRegistryHost, testClientRMIPort, testClientGIPCPort);
 		if (!result.isEmpty()) {
 			if (message.length() > 0) {
@@ -350,6 +351,7 @@ public class FlexibleStaticArgumentsTestCase extends PassFailJUnitTestCase {
 			interactiveInputProject.await();
 		} catch (Exception e){
 			if (!(e instanceof TimeoutException)) {
+				e.printStackTrace();
 				Assert.assertTrue("Couldn't run code." + NotesAndScore.PERCENTAGE_MARKER + 0, false);
 
 //				return "Couldn't run code.";
