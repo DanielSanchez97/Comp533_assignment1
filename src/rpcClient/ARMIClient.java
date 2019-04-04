@@ -1,13 +1,17 @@
 package rpcClient;
 
+import java.rmi.Remote;
 import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
+import java.util.UUID;
 
 import assignments.util.inputParameters.ASimulationParametersController;
 import assignments.util.mainArgs.ClientArgsProcessor;
 import consensus.ProposalFeedbackKind;
+import inputport.rpc.GIPCLocateRegistry;
+import inputport.rpc.GIPCRegistry;
 import rpcServer.RMIBroadcaster;
 import simpleClient.ASimpleNIOClient;
 import util.annotations.Tags;
@@ -27,7 +31,8 @@ import util.tags.DistributedTags;
 import util.trace.port.consensus.*;
 
 
-@Tags({DistributedTags.CLIENT, DistributedTags.RMI, DistributedTags.NIO})
+@Tags({DistributedTags.CLIENT, DistributedTags.RMI, DistributedTags.GIPC, DistributedTags.NIO})
+
 public class ARMIClient implements RMIClient, CommunicationStateNames{
 	private static final String LOOKUP = "Broadcast";
 	private ARMICommandProcessor commandProcessor;
@@ -44,6 +49,9 @@ public class ARMIClient implements RMIClient, CommunicationStateNames{
 	private int sleepTime =0;
 	private boolean isLocal = false;
 	private boolean vote = true;
+	private Remote RMI_PBroadcaster;
+	private Object GIPC_PBroadcaster;
+	
 	
 
 	public ARMIClient() {
@@ -51,7 +59,7 @@ public class ARMIClient implements RMIClient, CommunicationStateNames{
 	}
 	
 	@Override
-	public void Initialize(int rPORT, int sPORT, String host ,String name, String rHost, boolean vote) {
+	public void Initialize(int rPORT, int sPORT, String host ,String name, String rHost, boolean vote, int GIPCPort) {
 		try {
 			
 			Registry rmiRegistry = LocateRegistry.getRegistry(rHost, rPORT);
@@ -61,10 +69,15 @@ public class ARMIClient implements RMIClient, CommunicationStateNames{
 			commandProcessor.Initialize(this); //take boolean as param todo
 			UnicastRemoteObject.exportObject(commandProcessor,0);
 			
-			broadcaster = (RMIBroadcaster) rmiRegistry.lookup(LOOKUP);
+			
+			RMI_PBroadcaster = rmiRegistry.lookup(LOOKUP);
+			broadcaster = (RMIBroadcaster) RMI_PBroadcaster;
 			RMIObjectLookedUp.newCase(this, broadcaster, LOOKUP, rmiRegistry);
 			id = broadcaster.Register(commandProcessor);
 			
+			
+			GIPCRegistry gipcRegistry = GIPCLocateRegistry.getRegistry(host, GIPCPort, UUID.randomUUID().toString());
+			GIPC_PBroadcaster = gipcRegistry.lookup(RMIBroadcaster.class, LOOKUP);
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -119,6 +132,7 @@ public class ARMIClient implements RMIClient, CommunicationStateNames{
 		
 		switch (state) {
 			case RMI:
+				broadcaster = (RMIBroadcaster) RMI_PBroadcaster;
 				NIOclient.setLocal(true); //so commands wont be wrote twice via NIO
 				NIOclient.getCommandProcessor().setConnectedToSimulation(true);
 				break;
@@ -129,6 +143,11 @@ public class ARMIClient implements RMIClient, CommunicationStateNames{
 					NIOclient.getCommandProcessor().setConnectedToSimulation(false);
 				}
 				break;
+			
+			case GIPC:
+				broadcaster = (RMIBroadcaster) GIPC_PBroadcaster;
+				NIOclient.setLocal(true); //so commands wont be wrote twice via NIO
+				NIOclient.getCommandProcessor().setConnectedToSimulation(true);
 				
 			default:
 				break;
@@ -149,18 +168,18 @@ public class ARMIClient implements RMIClient, CommunicationStateNames{
 		}
 		
 		switch (state) {
-		case Atomic:
-			NIOclient.setAtomic(true);
-			if(s_IPC == IPC.RMI) {
-				NIOclient.getCommandProcessor().setConnectedToSimulation(true);
-			}
-			break;
-
-		case NonAtomic:
-			NIOclient.setAtomic(false);
-			
-		default:
-			break;
+			case Atomic:
+				NIOclient.setAtomic(true);
+				if(s_IPC == IPC.RMI) {
+					NIOclient.getCommandProcessor().setConnectedToSimulation(true);
+				}
+				break;
+	
+			case NonAtomic:
+				NIOclient.setAtomic(false);
+				
+			default:
+				break;
 		}
 		
 	}
@@ -180,6 +199,7 @@ public class ARMIClient implements RMIClient, CommunicationStateNames{
 		util.misc.ThreadSupport.sleep(sleepTime);
 		
 		switch (s_IPC) {
+		case GIPC:
 		case RMI:
 			try {
 				
@@ -319,7 +339,8 @@ public class ARMIClient implements RMIClient, CommunicationStateNames{
 	
 		
 		ARMIClient aCLient = new ARMIClient();
+		
 		aCLient.Initialize(ClientArgsProcessor.getRegistryPort(args), ClientArgsProcessor.getServerPort(args),ClientArgsProcessor.getServerHost(args),
-						   ClientArgsProcessor.getClientName(args), ClientArgsProcessor.getRegistryHost(args), true);
+						   ClientArgsProcessor.getClientName(args), ClientArgsProcessor.getRegistryHost(args), true, ClientArgsProcessor.getGIPCPort(args));
 	}
 }

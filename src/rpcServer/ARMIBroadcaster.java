@@ -41,6 +41,7 @@ public class ARMIBroadcaster implements RMIBroadcaster,CommunicationStateNames {
 	@Override
 	public synchronized void Broadcast(String command, int id) throws RemoteException {
 	//	RemoteProposeRequestReceived.newCase(this, CommunicationStateNames.COMMAND,-1, command);
+		
 		switch (s_Broadcast) {
 			case Atomic:
 				for(Integer i: callbacks.keySet()) {

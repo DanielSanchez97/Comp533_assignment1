@@ -8,6 +8,8 @@ import java.rmi.server.UnicastRemoteObject;
 
 
 import assignments.util.mainArgs.ServerArgsProcessor;
+import inputport.rpc.GIPCLocateRegistry;
+import inputport.rpc.GIPCRegistry;
 import simpleServer.ASimpleNIOServer;
 import simpleServer.SimpleNIOServer;
 import util.trace.bean.BeanTraceUtility;
@@ -21,7 +23,7 @@ import util.trace.port.rpc.rmi.RMITraceUtility;
 import util.annotations.Tags;
 import util.tags.DistributedTags;
 
-@Tags({DistributedTags.SERVER, DistributedTags.RMI, DistributedTags.NIO})
+@Tags({DistributedTags.SERVER, DistributedTags.RMI, DistributedTags.GIPC, DistributedTags.NIO})
 public class ARMIServer implements RMIServer {
 	private static final String NAME = "Broadcast";
 	
@@ -33,7 +35,7 @@ public class ARMIServer implements RMIServer {
 		
 	}
 	
-	public void initialize(int rPORT, int nPort, String registryHost) {
+	public void initialize(int rPORT, int nPort, String registryHost, int GipcPort) {
 		NIOServer = new ASimpleNIOServer();
 		NIOServer.initialize(nPort);
 		NIOServer.setAtomic(false); //start in non atomic mode
@@ -48,6 +50,11 @@ public class ARMIServer implements RMIServer {
 			UnicastRemoteObject.exportObject(broadcaster, 0);
 			RMIObjectRegistered.newCase(this, NAME,broadcaster , rmiRegistry);
 			rmiRegistry.rebind(NAME,broadcaster);
+			
+			//GIPC 
+			GIPCRegistry gipcRegistry = GIPCLocateRegistry.createRegistry(GipcPort);
+			gipcRegistry.rebind(NAME, broadcaster);
+			
 			
 		}
 		catch (Exception e) {
@@ -82,6 +89,8 @@ public class ARMIServer implements RMIServer {
 		ThreadDelayed.enablePrint();
 
 		ARMIServer aServer = new ARMIServer();
-		aServer.initialize(ServerArgsProcessor.getRegistryPort(args), ServerArgsProcessor.getServerPort(args), ServerArgsProcessor.getRegistryHost(args));
+		
+		aServer.initialize(ServerArgsProcessor.getRegistryPort(args), ServerArgsProcessor.getServerPort(args), 
+						  ServerArgsProcessor.getRegistryHost(args), ServerArgsProcessor.getGIPCServerPort(args));
 	}
 }

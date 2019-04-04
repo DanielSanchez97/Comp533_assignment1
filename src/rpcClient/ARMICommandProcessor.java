@@ -50,6 +50,11 @@ public class ARMICommandProcessor implements RMICommandProcessor, SimulationPara
 
 		case NIO:
 			this.client.processIPC(IPC.NIO);
+			
+		case GIPC:
+			this.client.processIPC(IPC.GIPC);
+			
+			
 		default:
 			break;
 		}
