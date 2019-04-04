@@ -4,7 +4,9 @@ package rpcServer;
 import java.rmi.Remote;
 import java.rmi.RemoteException;
 
+import inputport.rpc.duplex.RemoteEndDisconnectedException;
 import rpcClient.RMICommandProcessor;
+import util.interactiveMethodInvocation.ConsensusAlgorithm;
 
 
 
@@ -23,4 +25,5 @@ public interface RMIBroadcaster extends Remote {
 		
 	public void setMetaState(boolean newValue) throws RemoteException;
 	
+	public void setAlg(ConsensusAlgorithm newAlg) throws RemoteException;
 }

@@ -5,17 +5,22 @@ import java.rmi.RemoteException;
 import assignments.util.inputParameters.SimulationParametersListener;
 import rpcClient.RMIClient.Broadcast;
 import rpcClient.RMIClient.IPC;
+import util.interactiveMethodInvocation.ConsensusAlgorithm;
 import util.interactiveMethodInvocation.IPCMechanism;
 import util.trace.Tracer;
 import util.trace.port.PerformanceExperimentEnded;
 import util.trace.port.PerformanceExperimentStarted;
+import util.trace.port.consensus.ProposalAcceptRequestReceived;
+import util.trace.port.consensus.communication.CommunicationStateNames;
 
 public class ARMICommandProcessor implements RMICommandProcessor, SimulationParametersListener {
 	private ARMIClient client;
 	
+	
 	@Override
 	public void Initialize(ARMIClient client) {
 		this.client = client;
+	
 	}
 
 	@Override
@@ -96,5 +101,34 @@ public class ARMICommandProcessor implements RMICommandProcessor, SimulationPara
 	public void trace(boolean newValue) {
 		Tracer.showInfo(newValue);
 	}
+	
+	@Override
+	public void rejectMetaStateChange(boolean newValue) {
+		client.setVote(!newValue);
+	}
+
+
+	@Override
+	public boolean voteBroadcast(Broadcast newMode) throws RemoteException {
+		return client.voteBroadcast(newMode);
+		
+	}
+
+	@Override
+	public boolean voteIPC(IPC newMode) throws RemoteException {
+		// TODO Auto-generated method stub
+		return client.voteIPC(newMode);
+	}
+	
+	
+	public void waitForBroadcastConsensus(boolean newValue) {
+		if(newValue) {
+			this.client.setAlg(ConsensusAlgorithm.CENTRALIZED_SYNCHRONOUS);
+		}
+		else {
+			this.client.setAlg(ConsensusAlgorithm.CENTRALIZED_ASYNCHRONOUS);
+		}
+	}
+	
 
 }

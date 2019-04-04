@@ -7,9 +7,11 @@ import java.rmi.server.UnicastRemoteObject;
 
 import assignments.util.inputParameters.ASimulationParametersController;
 import assignments.util.mainArgs.ClientArgsProcessor;
+import consensus.ProposalFeedbackKind;
 import rpcServer.RMIBroadcaster;
 import simpleClient.ASimpleNIOClient;
 import util.annotations.Tags;
+import util.interactiveMethodInvocation.ConsensusAlgorithm;
 import util.interactiveMethodInvocation.SimulationParametersController;
 import util.trace.bean.BeanTraceUtility;
 import util.trace.factories.FactoryTraceUtility;
@@ -31,12 +33,17 @@ public class ARMIClient implements RMIClient, CommunicationStateNames{
 	private ARMICommandProcessor commandProcessor;
 	private RMIBroadcaster broadcaster;
 	private int id;
+	
 	private Broadcast s_Broadcast;
 	private IPC s_IPC;
+	private Broadcast last_Broadcast;
+	private IPC last_IPC;
+	
 	private ASimpleNIOClient NIOclient;
-	private boolean metaState = true;
+	private Boolean metaState = true;
 	private int sleepTime =0;
 	private boolean isLocal = false;
+	private boolean vote = true;
 	
 
 	public ARMIClient() {
@@ -44,14 +51,14 @@ public class ARMIClient implements RMIClient, CommunicationStateNames{
 	}
 	
 	@Override
-	public void Initialize(int rPORT, int sPORT, String host ,String name, String rHost) {
+	public void Initialize(int rPORT, int sPORT, String host ,String name, String rHost, boolean vote) {
 		try {
 			
 			Registry rmiRegistry = LocateRegistry.getRegistry(rHost, rPORT);
 			RMIRegistryLocated.newCase(this,rHost, rPORT, rmiRegistry);
 			
 			commandProcessor = new ARMICommandProcessor();
-			commandProcessor.Initialize(this);
+			commandProcessor.Initialize(this); //take boolean as param todo
 			UnicastRemoteObject.exportObject(commandProcessor,0);
 			
 			broadcaster = (RMIBroadcaster) rmiRegistry.lookup(LOOKUP);
@@ -102,7 +109,14 @@ public class ARMIClient implements RMIClient, CommunicationStateNames{
 		//System.out.println(state.toString());
 		this.setMetaState(true);
 		ProposedStateSet.newCase(this,  CommunicationStateNames.IPC_MECHANISM, -1, state);
-		s_IPC = state;
+		
+		if(state == null) {
+			s_IPC = last_IPC;
+		}
+		else {
+			s_IPC = state;
+		}
+		
 		switch (state) {
 			case RMI:
 				NIOclient.setLocal(true); //so commands wont be wrote twice via NIO
@@ -126,7 +140,13 @@ public class ARMIClient implements RMIClient, CommunicationStateNames{
 		//System.out.println(state.toString());
 		this.setMetaState(true);
 		ProposedStateSet.newCase(this,  CommunicationStateNames.BROADCAST_MODE, -1, state);
-		s_Broadcast = state;
+		
+		if(state == null) {
+			s_Broadcast = last_Broadcast;
+		}
+		else {
+			s_Broadcast = state;
+		}
 		
 		switch (state) {
 		case Atomic:
@@ -146,19 +166,21 @@ public class ARMIClient implements RMIClient, CommunicationStateNames{
 	}
 	
 	public void processCommand(String command) {
+		if((this.s_IPC == null) || (this.s_Broadcast == null)) {
+			ActionWhileEnablingProposalIsPending.newCase(this, CommunicationStateNames.COMMAND, -1, command);
+			System.out.println("Failed to process command: '"+command+"' because the client is not stable");
+			return;
+		}
+			
 		if(isLocal) {
 			NIOclient.getCommandProcessor().setInputString(command);
 			return;
 		}
 		
-		
 		util.misc.ThreadSupport.sleep(sleepTime);
 		
 		switch (s_IPC) {
 		case RMI:
-			//ProposalMade.newCase(this, CommunicationStateNames.COMMAND, -1, command);
-			//RemoteProposeRequestSent.newCase(this,  CommunicationStateNames.COMMAND, -1, command);
-			RemoteProposeRequestSent.newCase(this,  CommunicationStateNames.COMMAND, -1, command);
 			try {
 				
 				switch (s_Broadcast) {
@@ -177,7 +199,6 @@ public class ARMIClient implements RMIClient, CommunicationStateNames{
 						break;
 				}
 			
-				
 				broadcaster.Broadcast(command, id);
 				
 			} catch (RemoteException e) {
@@ -226,18 +247,8 @@ public class ARMIClient implements RMIClient, CommunicationStateNames{
 		}
 	}
 
-	public static void main(String[] args) {
-		FactoryTraceUtility.setTracing();
-		BeanTraceUtility.setTracing();
-		NIOTraceUtility.setTracing();
-		RMITraceUtility.setTracing();
-		ConsensusTraceUtility.setTracing();
-		ThreadDelayed.enablePrint();
-	
-		
-		ARMIClient aCLient = new ARMIClient();
-		aCLient.Initialize(ClientArgsProcessor.getRegistryPort(args), ClientArgsProcessor.getServerPort(args),ClientArgsProcessor.getServerHost(args),
-						   ClientArgsProcessor.getClientName(args), ClientArgsProcessor.getRegistryHost(args));
+	public void setVote(boolean value) {
+		this.vote = value;
 	}
 	
 	public void setMetaState(boolean value) {
@@ -263,6 +274,52 @@ public class ARMIClient implements RMIClient, CommunicationStateNames{
 		this.isLocal = newValue;
 	}
 	
+	public boolean voteBroadcast(Broadcast proposed) {
+		ProposalAcceptRequestReceived.newCase(this, CommunicationStateNames.BROADCAST_MODE, -1, proposed);
+		this.last_Broadcast = this.s_Broadcast;
+		this.s_Broadcast = null;
+		ProposalFeedbackKind retval;
+		
+		 retval = this.vote ? ProposalFeedbackKind.SUCCESS : ProposalFeedbackKind.ACCESS_DENIAL;
+		
+		
+		ProposalAcceptedNotificationSent.newCase(this, CommunicationStateNames.BROADCAST_MODE, -1, proposed, retval);
+		return this.vote;
+	}
+	
+	public boolean voteIPC(IPC proposed) {
+		ProposalAcceptRequestReceived.newCase(this, CommunicationStateNames.IPC_MECHANISM, -1, proposed);
+		this.last_IPC = this.s_IPC;
+		this.s_IPC = null;
+		
+		ProposalFeedbackKind retval;
+		
+		retval = this.vote ? ProposalFeedbackKind.SUCCESS :  ProposalFeedbackKind.ACCESS_DENIAL;
+		
+		ProposalAcceptedNotificationSent.newCase(this, CommunicationStateNames.IPC_MECHANISM, -1, proposed, retval);
+		return this.vote;
+	}
 
-
+	public void setAlg(ConsensusAlgorithm alg) {
+		try {
+			broadcaster.setAlg(alg);
+		}
+		catch (Exception e) {
+			// TODO: handle exception
+		}
+	}
+	
+	public static void main(String[] args) {
+		FactoryTraceUtility.setTracing();
+		BeanTraceUtility.setTracing();
+		NIOTraceUtility.setTracing();
+		RMITraceUtility.setTracing();
+		ConsensusTraceUtility.setTracing();
+		ThreadDelayed.enablePrint();
+	
+		
+		ARMIClient aCLient = new ARMIClient();
+		aCLient.Initialize(ClientArgsProcessor.getRegistryPort(args), ClientArgsProcessor.getServerPort(args),ClientArgsProcessor.getServerHost(args),
+						   ClientArgsProcessor.getClientName(args), ClientArgsProcessor.getRegistryHost(args), true);
+	}
 }

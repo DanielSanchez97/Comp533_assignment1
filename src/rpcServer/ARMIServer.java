@@ -36,6 +36,8 @@ public class ARMIServer implements RMIServer {
 	public void initialize(int rPORT, int nPort, String registryHost) {
 		NIOServer = new ASimpleNIOServer();
 		NIOServer.initialize(nPort);
+		NIOServer.setAtomic(false); //start in non atomic mode
+		
 		try {
 			
 			Registry rmiRegistry = LocateRegistry.getRegistry(registryHost, rPORT);
@@ -51,7 +53,7 @@ public class ARMIServer implements RMIServer {
 		catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+	
 		
 		
 	}
