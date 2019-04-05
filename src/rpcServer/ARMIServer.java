@@ -1,6 +1,7 @@
 package rpcServer;
 
 
+import java.rmi.RemoteException;
 import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
@@ -10,6 +11,7 @@ import java.rmi.server.UnicastRemoteObject;
 import assignments.util.mainArgs.ServerArgsProcessor;
 import inputport.rpc.GIPCLocateRegistry;
 import inputport.rpc.GIPCRegistry;
+import rpcClient.RMICommandProcessor;
 import simpleServer.ASimpleNIOServer;
 import simpleServer.SimpleNIOServer;
 import util.trace.bean.BeanTraceUtility;
@@ -31,6 +33,7 @@ public class ARMIServer implements RMIServer {
 	protected SimpleNIOServer NIOServer;
 	
 	protected RMIBroadcaster broadcaster;
+	private GIPCRegistry gipcRegistry;
 	
 	public ARMIServer() {
 		
@@ -53,7 +56,7 @@ public class ARMIServer implements RMIServer {
 			rmiRegistry.rebind(NAME,broadcaster);
 			
 			//GIPC 
-			GIPCRegistry gipcRegistry = GIPCLocateRegistry.createRegistry(GipcPort);
+			gipcRegistry = GIPCLocateRegistry.createRegistry(GipcPort);
 			gipcRegistry.rebind(NAME, broadcaster);
 			
 			
@@ -64,6 +67,11 @@ public class ARMIServer implements RMIServer {
 	
 		
 		
+	}
+	
+	public RMICommandProcessor getCommandProcessor(String id) throws RemoteException {
+		RMICommandProcessor proc = (RMICommandProcessor) gipcRegistry.lookupCaller(RMICommandProcessor.class, id);
+		return proc;
 	}
 	
 	public void setAtomic(rpcClient.RMIClient.Broadcast state) {

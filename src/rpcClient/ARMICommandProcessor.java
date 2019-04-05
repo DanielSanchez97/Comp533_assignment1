@@ -38,6 +38,11 @@ public class ARMICommandProcessor implements RMICommandProcessor, SimulationPara
 		this.client.setBroadcast(newMode);
 	}
 	
+	@Override
+	public void print() {
+		System.out.println("I hate life!!!!!!");
+	}
+	
 	public void simulationCommand(String aCommand) {
 		this.client.processCommand(aCommand);
 	}

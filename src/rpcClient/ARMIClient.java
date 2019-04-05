@@ -12,6 +12,7 @@ import assignments.util.mainArgs.ClientArgsProcessor;
 import consensus.ProposalFeedbackKind;
 import inputport.rpc.GIPCLocateRegistry;
 import inputport.rpc.GIPCRegistry;
+import port.ATracingConnectionListener;
 import rpcServer.RMIBroadcaster;
 import simpleClient.ASimpleNIOClient;
 import util.annotations.Tags;
@@ -52,7 +53,7 @@ public class ARMIClient implements RMIClient, CommunicationStateNames{
 	private boolean vote = true;
 	private Remote RMI_PBroadcaster;
 	private Object GIPC_PBroadcaster;
-	
+	private String s_id;
 	
 
 	public ARMIClient() {
@@ -77,8 +78,16 @@ public class ARMIClient implements RMIClient, CommunicationStateNames{
 			id = broadcaster.Register(commandProcessor);
 			
 			
-			GIPCRegistry gipcRegistry = GIPCLocateRegistry.getRegistry(host, GIPCPort, UUID.randomUUID().toString());
+			s_id = UUID.randomUUID().toString();
+			GIPCRegistry gipcRegistry = GIPCLocateRegistry.getRegistry(host, GIPCPort, s_id);
 			GIPC_PBroadcaster = gipcRegistry.lookup(RMIBroadcaster.class, LOOKUP);
+		
+			//gipcRegistry.rebind(s_id, commandProcessor);
+			
+			broadcaster = (RMIBroadcaster) GIPC_PBroadcaster;
+			broadcaster.GIPCRegister(commandProcessor, s_id);
+			
+			broadcaster= (RMIBroadcaster)  RMI_PBroadcaster;
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -201,6 +210,30 @@ public class ARMIClient implements RMIClient, CommunicationStateNames{
 		
 		switch (s_IPC) {
 		case GIPC:
+			try {
+				switch (s_Broadcast) {
+				case Atomic:
+					//do nothing because the move will be processed when it is returned from server
+					
+					break;
+					
+				case NonAtomic:
+					//process command locally before sending it to broadcast
+					//RemoteProposeRequestSent.newCase(this,  CommunicationStateNames.COMMAND, -1, command);
+					NIOclient.getCommandProcessor().setInputString(command);
+					break;
+					
+				default:
+					break;
+				}
+				broadcaster.GIPCBroadcast(s_id,command);
+			}
+			catch (Exception e) {
+				// TODO: handle exception
+			}
+			break;
+			
+			
 		case RMI:
 			try {
 				
@@ -222,11 +255,11 @@ public class ARMIClient implements RMIClient, CommunicationStateNames{
 			
 				broadcaster.Broadcast(command, id);
 				
-			} catch (RemoteException e) {
+				} catch (RemoteException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
-			}
-			break;
+				}
+				break;
 
 		case NIO:
 			RemoteProposeRequestSent.newCase(this,  CommunicationStateNames.COMMAND, -1, command);

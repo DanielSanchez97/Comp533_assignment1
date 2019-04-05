@@ -22,6 +22,7 @@ import util.trace.port.consensus.communication.CommunicationStateNames;
 
 public class ARMIBroadcaster implements RMIBroadcaster,CommunicationStateNames {
 	private Map<Integer, RMICommandProcessor> callbacks;
+	private Map<String, RMICommandProcessor> GIPC_callbacks;
 	private int id =0;
 	private rpcClient.RMIClient.Broadcast s_Broadcast; //current Broadcast state 
 	private ARMIServer server;
@@ -31,6 +32,7 @@ public class ARMIBroadcaster implements RMIBroadcaster,CommunicationStateNames {
 	public void Initialize(ARMIServer server) {
 		// TODO Auto-generated method stub
 		callbacks = new HashMap<Integer, RMICommandProcessor>();
+		GIPC_callbacks = new HashMap<String , RMICommandProcessor>();
 		this.server = server;
 		this.server.setAtomic(rpcClient.RMIClient.Broadcast.Atomic);
 		
@@ -164,6 +166,37 @@ public class ARMIBroadcaster implements RMIBroadcaster,CommunicationStateNames {
 		System.out.println("using "+newAlg+ " algorithm");
 		
 	}
+
+	@Override
+	public void GIPCRegister(RMICommandProcessor proc, String s) throws RemoteException {
+		GIPC_callbacks.put(s, proc);
+
+	}
+	
+	public void GIPCBroadcast(String id, String command) throws RemoteException {
+		switch(s_Broadcast) {
+			case Atomic:
+				for(String s : GIPC_callbacks.keySet()) {
+					GIPC_callbacks.get(s).runCommand(command);;
+				}
+				break;
+			
+			case NonAtomic:
+				for(String s : GIPC_callbacks.keySet()) {
+					if(!s.equals(id)) {
+						GIPC_callbacks.get(s).runCommand(command);;
+					}
+				}
+				break;
+				
+			default:
+				break;
+		}
+		
+		
+	}
+	
+	
 
 	
 }

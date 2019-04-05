@@ -26,4 +26,8 @@ public interface RMIBroadcaster extends Remote {
 	public void setMetaState(boolean newValue) throws RemoteException;
 	
 	public void setAlg(ConsensusAlgorithm newAlg) throws RemoteException;
+	
+	public void GIPCRegister(RMICommandProcessor proc, String s) throws RemoteException;
+	
+	public void GIPCBroadcast(String id, String Command) throws RemoteException;
 }
