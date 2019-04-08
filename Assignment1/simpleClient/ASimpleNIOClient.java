@@ -18,6 +18,7 @@ import stringProcessors.HalloweenCommandProcessor;
 import util.annotations.Tags;
 import util.interactiveMethodInvocation.SimulationParametersController;
 import util.tags.DistributedTags;
+import util.trace.Tracer;
 import util.trace.bean.BeanTraceUtility;
 import util.trace.factories.FactoryTraceUtility;
 import util.trace.port.nio.NIOTraceUtility;
@@ -61,6 +62,7 @@ public class ASimpleNIOClient implements SimpleNIOClient{
 		
 		createSimulation();
 		createReadThread();
+		Tracer.showInfo(false);
 		
 		//commandInput.setConnectedToSimulation(!this.isAtomic);
 		//launchConsole();

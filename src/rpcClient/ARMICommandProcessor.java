@@ -1,6 +1,7 @@
 package rpcClient;
 
 import java.rmi.RemoteException;
+import java.util.concurrent.TimeUnit;
 
 import assignments.util.inputParameters.SimulationParametersListener;
 import rpcClient.RMIClient.Broadcast;
@@ -95,22 +96,26 @@ public class ARMICommandProcessor implements RMICommandProcessor, SimulationPara
 	public void experimentInput() {
 		long start = System.nanoTime();
 		PerformanceExperimentStarted.newCase(this, start,1000);
+		System.out.println("Starting experiment");
+		trace(false);
 		
-		for(int i=0; i<500; i++) {
+		simulationCommand("move 50 -50");
+		for(int i=0; i<250; i++) {
+			
 			simulationCommand("take 1");
 			simulationCommand("give 1");
 		}
 		
-		
+		trace(true);
 		long finish = System.nanoTime();
 		PerformanceExperimentEnded.newCase(this, start, finish, (finish-start), 1000);
-	
+		System.out.println("****this experiment took " + TimeUnit.SECONDS.convert((finish-start), TimeUnit.NANOSECONDS) + " seconds****");
 	}
 	
 
 	@Override
 	public void trace(boolean newValue) {
-		Tracer.showInfo(newValue);
+		this.client.setTrace(newValue);
 	}
 	
 	@Override

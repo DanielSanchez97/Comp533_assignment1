@@ -11,9 +11,11 @@ import java.rmi.server.UnicastRemoteObject;
 import assignments.util.mainArgs.ServerArgsProcessor;
 import inputport.rpc.GIPCLocateRegistry;
 import inputport.rpc.GIPCRegistry;
+import regsitry.ARMIRegistry;
 import rpcClient.RMICommandProcessor;
 import simpleServer.ASimpleNIOServer;
 import simpleServer.SimpleNIOServer;
+import util.trace.Tracer;
 import util.trace.bean.BeanTraceUtility;
 import util.trace.factories.FactoryTraceUtility;
 import util.trace.misc.ThreadDelayed;
@@ -40,6 +42,9 @@ public class ARMIServer implements RMIServer {
 	}
 	
 	public void initialize(int rPORT, int nPort, String registryHost, int GipcPort) {
+		ARMIRegistry r = new ARMIRegistry(rPORT);
+		
+		
 		NIOServer = new ASimpleNIOServer();
 		NIOServer.initialize(nPort);
 		NIOServer.setAtomic(true); //start in non atomic mode
@@ -64,7 +69,7 @@ public class ARMIServer implements RMIServer {
 		catch (Exception e) {
 			e.printStackTrace();
 		}
-	
+		Tracer.showInfo(false);
 		
 		
 	}
@@ -98,6 +103,8 @@ public class ARMIServer implements RMIServer {
 		ThreadDelayed.enablePrint();
 		GIPCRPCTraceUtility.setTracing();
 
+	
+		
 		ARMIServer aServer = new ARMIServer();
 		
 		aServer.initialize(ServerArgsProcessor.getRegistryPort(args), ServerArgsProcessor.getServerPort(args), 

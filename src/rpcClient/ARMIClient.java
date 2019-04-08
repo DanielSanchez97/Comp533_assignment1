@@ -18,6 +18,7 @@ import simpleClient.ASimpleNIOClient;
 import util.annotations.Tags;
 import util.interactiveMethodInvocation.ConsensusAlgorithm;
 import util.interactiveMethodInvocation.SimulationParametersController;
+import util.trace.Tracer;
 import util.trace.bean.BeanTraceUtility;
 import util.trace.factories.FactoryTraceUtility;
 import util.trace.misc.ThreadDelayed;
@@ -187,7 +188,7 @@ public class ARMIClient implements RMIClient, CommunicationStateNames{
 			case Atomic:
 				NIOclient.setAtomic(true);
 				if(s_IPC == IPC.RMI) {
-					//NIOclient.getCommandProcessor().setConnectedToSimulation(true);
+					NIOclient.getCommandProcessor().setConnectedToSimulation(true);
 				}
 				break;
 	
@@ -397,7 +398,7 @@ public class ARMIClient implements RMIClient, CommunicationStateNames{
 	
 	public static void main(String[] args) {
 		FactoryTraceUtility.setTracing();
-		BeanTraceUtility.setTracing();
+		//BeanTraceUtility.setTracing();
 		NIOTraceUtility.setTracing();
 		RMITraceUtility.setTracing();
 		ConsensusTraceUtility.setTracing();
@@ -408,5 +409,10 @@ public class ARMIClient implements RMIClient, CommunicationStateNames{
 		
 		aCLient.Initialize(ClientArgsProcessor.getRegistryPort(args), ClientArgsProcessor.getServerPort(args),ClientArgsProcessor.getServerHost(args),
 						   ClientArgsProcessor.getClientName(args), ClientArgsProcessor.getRegistryHost(args), true, ClientArgsProcessor.getGIPCPort(args));
+	}
+	
+	public void setTrace(boolean value) {
+		Tracer.showInfo(value);
+	
 	}
 }

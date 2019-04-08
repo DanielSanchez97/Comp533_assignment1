@@ -19,6 +19,7 @@ import graphics.HalloweenSimulation;
 import stringProcessors.AHalloweenCommandProcessor;
 import stringProcessors.HalloweenCommandProcessor;
 import util.trace.TraceableWarning;
+import util.trace.Tracer;
 import util.trace.bean.BeanTraceUtility;
 import util.trace.trickOrTreat.TrickOrTreatTraceUility;
 import util.trace.uigen.ImageYLessThanZero;
@@ -102,9 +103,10 @@ public class BeauAndersonFinalProject
 	HalloweenSimulation aNewHalloweenSim = new AHalloweenSimulation(40, 40, 1144, 720, 100, 50, 8);
 //	OEFrame simulationFrame = ObjectEditor.edit(aNewHalloweenSim);
 	// some images will be < 0
+	
 	TraceableWarning.doNotWarn(ImageYLessThanZero.class);
-	BeanTraceUtility.setTracing();
-	TrickOrTreatTraceUility.setTracing();
+	//BeanTraceUtility.setTracing();
+	//TrickOrTreatTraceUility.setTracing();
 	CompleteOEFrame simulationFrame = ObjectEditor.edit(aNewHalloweenSim);
 	simulationFrame.hideMainPanel();
 	simulationFrame.setTitle(titlePrefix + "Beau Anderson's Halloween Simulation - Version 13.5");
@@ -120,6 +122,7 @@ public class BeauAndersonFinalProject
 ////	commandFrame.setSize(1100, 210); // sets the width and height of window
 //	commandFrame.setSize(400, 210); // sets the width and height of window
 //	return commandLine;
+	Tracer.showInfo(false);
 	return aNewHalloweenSim;
 }
 	public static void bindAndDisplayCommandProcessor(HalloweenSimulation aSimulation, 

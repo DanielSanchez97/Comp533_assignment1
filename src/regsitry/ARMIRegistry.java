@@ -19,19 +19,19 @@ import util.trace.port.rpc.rmi.RMITraceUtility;
 public class ARMIRegistry {
 
 	public ARMIRegistry(int ServerPort) {
-		FactoryTraceUtility.setTracing();
+		/*FactoryTraceUtility.setTracing();
 		BeanTraceUtility.setTracing();
 		NIOTraceUtility.setTracing();
 		RMITraceUtility.setTracing();
 		ConsensusTraceUtility.setTracing();
 		ThreadDelayed.enablePrint();
-		GIPCRPCTraceUtility.setTracing();
+		GIPCRPCTraceUtility.setTracing();*/
 		try{
-			System.out.println(ServerPort);
+			//System.out.println(ServerPort);
 			LocateRegistry.createRegistry(ServerPort);
 		
-			Scanner sc = new Scanner(System.in);
-			sc.next();
+			//Scanner sc = new Scanner(System.in);
+			//sc.next();
 		}
 		catch(Exception e) {
 			e.printStackTrace();
