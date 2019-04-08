@@ -1,0 +1,2 @@
+#,Time,%Passes,Change,Test,Pass,Partial,Fail,Untested
+0,Mon Apr 08 17:25:53 EDT 2019,54,54,Assignment3Suite,GIPCRMINIOClientMetaStateBroadcast+ GIPCRMINIOClientMetaStateNoBroadcast+ GIPCRMINIOOneClientConnection+ GIPCRMINIOOneClientReadWriteNonAtomic+ GIPCRMINIOStaticArguments+ GIPCRMINIOTwoClientConnection+ ,GIPCRMINIOOneClientReadWriteAtomic+ GIPCRMINIOTwoClientReadWriteAtomic+ GIPCRMINIOTwoClientReadWriteNonAtomic+ ,GIPCRMINIOServerMetaStateBroadcast- GIPCRMINIOServerMetaStateNoBroadcast- , ,

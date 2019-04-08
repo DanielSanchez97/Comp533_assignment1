@@ -83,6 +83,7 @@ public class FlexibleOneClientCorrectReadWriteTestCase extends PassFailJUnitTest
 			}
 			if (interactiveInputProject != null) {
 				interactiveInputProject.getProcessOutput().forEach((name, output) -> Tracer.info(this, "*** " + name + " ***\n" + output));
+				interactiveInputProject.getProcessOutput().forEach((name, output) -> System.out.println("*** " + name + " ***\n" + output));
 			}
 			int correct = 0;
 			int possible = atomic ? 4 : 2;
@@ -96,19 +97,26 @@ public class FlexibleOneClientCorrectReadWriteTestCase extends PassFailJUnitTest
 				}
 			}
 			if (doRMI) {
+				System.out.println(scoring[0]);
 				check(scoring, anOutputBasedInputGenerator.isClientRMIWriteComplete());
+				System.out.println(scoring[0]);
 				check(scoring, anOutputBasedInputGenerator.isServerRMIReadComplete());
+				System.out.println(scoring[0]);
 				if (atomic) {
 					check(scoring, anOutputBasedInputGenerator.isServerRMIWriteComplete());
+					System.out.println(scoring[0]);
 					check(scoring, anOutputBasedInputGenerator.isClientRMIReadComplete());
+					System.out.println(scoring[0]);
 				}
 			}
 			if (doGIPC) {
 				check(scoring, anOutputBasedInputGenerator.isClientGIPCWriteComplete());
 				check(scoring, anOutputBasedInputGenerator.isServerGIPCReadComplete());
+				System.out.println(scoring[0]);
 				if (atomic) {
 					check(scoring, anOutputBasedInputGenerator.isServerGIPCWriteComplete());
 					check(scoring, anOutputBasedInputGenerator.isClientGIPCReadComplete());
+					System.out.println(scoring[0]);
 				}
 			}
 			correct = scoring[0];

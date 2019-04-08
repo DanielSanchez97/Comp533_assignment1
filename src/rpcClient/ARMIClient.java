@@ -187,7 +187,7 @@ public class ARMIClient implements RMIClient, CommunicationStateNames{
 			case Atomic:
 				NIOclient.setAtomic(true);
 				if(s_IPC == IPC.RMI) {
-					NIOclient.getCommandProcessor().setConnectedToSimulation(true);
+					//NIOclient.getCommandProcessor().setConnectedToSimulation(true);
 				}
 				break;
 	
@@ -218,17 +218,17 @@ public class ARMIClient implements RMIClient, CommunicationStateNames{
 		case GIPC:
 			try {
 				switch (s_Broadcast) {
-				case Atomic:
-					//do nothing because the move will be processed when it is returned from server
-					break;
-					
-				case NonAtomic:
-					//process command locally before sending it to broadcast
-					NIOclient.getCommandProcessor().setInputString(command);
-					break;
-					
-				default:
-					break;
+					case Atomic:
+						//do nothing because the move will be processed when it is returned from server
+						break;
+						
+					case NonAtomic:
+						//process command locally before sending it to broadcast
+						NIOclient.getCommandProcessor().setInputString(command);
+						break;
+						
+					default:
+						break;
 				}
 				
 				RemoteProposeRequestSent.newCase(this,  CommunicationStateNames.COMMAND, -1, command);
@@ -259,15 +259,16 @@ public class ARMIClient implements RMIClient, CommunicationStateNames{
 				RemoteProposeRequestSent.newCase(this,  CommunicationStateNames.COMMAND, -1, command);
 				broadcaster.Broadcast(command, id);
 				
-				} catch (RemoteException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
-				break;
+			} catch (RemoteException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			break;
 
 		case NIO:
 			RemoteProposeRequestSent.newCase(this,  CommunicationStateNames.COMMAND, -1, command);
 			NIOclient.getCommandProcessor().setInputString(command);
+			break;
 			
 		default:
 			break;

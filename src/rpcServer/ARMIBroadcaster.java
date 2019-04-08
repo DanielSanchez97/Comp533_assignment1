@@ -47,7 +47,7 @@ public class ARMIBroadcaster implements RMIBroadcaster,CommunicationStateNames {
 		switch (s_Broadcast) {
 			case Atomic:
 				for(Integer i: callbacks.keySet()) {
-					ProposalLearnedNotificationSent.newCase(this, CommunicationStateNames.COMMAND,-1, command);
+					//ProposalLearnedNotificationSent.newCase(this, CommunicationStateNames.COMMAND,-1, command);
 					callbacks.get(i).runCommand(command);
 				}
 				break;
@@ -55,7 +55,7 @@ public class ARMIBroadcaster implements RMIBroadcaster,CommunicationStateNames {
 			case NonAtomic:
 				for(Integer i: callbacks.keySet()) {
 					if(i != id) {
-						ProposalLearnedNotificationSent.newCase(this, CommunicationStateNames.COMMAND,-1, command);
+						//ProposalLearnedNotificationSent.newCase(this, CommunicationStateNames.COMMAND,-1, command);
 						callbacks.get(i).runCommand(command);
 					}
 				}

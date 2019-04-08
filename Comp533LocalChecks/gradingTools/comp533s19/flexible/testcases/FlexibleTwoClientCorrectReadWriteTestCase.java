@@ -21,7 +21,7 @@ public class FlexibleTwoClientCorrectReadWriteTestCase extends PassFailJUnitTest
 	private final boolean doRMI;
 	private final boolean doGIPC;
 	
-	private static int RUNTIME = 60;
+	private static int RUNTIME = 45;
 	
 	private static String formatName(boolean atomic, boolean doNIO, boolean doRMI, boolean doGIPC) {
 		StringBuilder sb = new StringBuilder("Two client correct read write test case - ");

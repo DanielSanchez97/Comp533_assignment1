@@ -40,7 +40,7 @@ public class ARMICommandProcessor implements RMICommandProcessor, SimulationPara
 	
 	@Override
 	public void print() {
-		System.out.println("I hate life!!!!!!");
+		
 	}
 	
 	public void simulationCommand(String aCommand) {
