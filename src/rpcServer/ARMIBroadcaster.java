@@ -36,18 +36,18 @@ public class ARMIBroadcaster implements RMIBroadcaster,CommunicationStateNames {
 		this.server = server;
 		this.server.setAtomic(rpcClient.RMIClient.Broadcast.Atomic);
 		
-		s_Broadcast =  rpcClient.RMIClient.Broadcast.NonAtomic;
+		s_Broadcast =  rpcClient.RMIClient.Broadcast.Atomic;
 		alg = ConsensusAlgorithm.CENTRALIZED_SYNCHRONOUS;
 	}
 
 	@Override
 	public synchronized void Broadcast(String command, int id) throws RemoteException {
-	//	RemoteProposeRequestReceived.newCase(this, CommunicationStateNames.COMMAND,-1, command);
+		RemoteProposeRequestReceived.newCase(this, CommunicationStateNames.COMMAND,-1, command);
 		
 		switch (s_Broadcast) {
 			case Atomic:
 				for(Integer i: callbacks.keySet()) {
-					//ProposalLearnedNotificationSent.newCase(this, CommunicationStateNames.COMMAND,-1, command);
+					ProposalLearnedNotificationSent.newCase(this, CommunicationStateNames.COMMAND,-1, command);
 					callbacks.get(i).runCommand(command);
 				}
 				break;
@@ -55,7 +55,7 @@ public class ARMIBroadcaster implements RMIBroadcaster,CommunicationStateNames {
 			case NonAtomic:
 				for(Integer i: callbacks.keySet()) {
 					if(i != id) {
-						//ProposalLearnedNotificationSent.newCase(this, CommunicationStateNames.COMMAND,-1, command);
+						ProposalLearnedNotificationSent.newCase(this, CommunicationStateNames.COMMAND,-1, command);
 						callbacks.get(i).runCommand(command);
 					}
 				}
@@ -174,9 +174,12 @@ public class ARMIBroadcaster implements RMIBroadcaster,CommunicationStateNames {
 	}
 	
 	public void GIPCBroadcast(String id, String command) throws RemoteException {
+		RemoteProposeRequestReceived.newCase(this, CommunicationStateNames.COMMAND,-1, command);
+		
 		switch(s_Broadcast) {
 			case Atomic:
 				for(String s : GIPC_callbacks.keySet()) {
+					ProposalLearnedNotificationSent.newCase(this, CommunicationStateNames.COMMAND,-1, command);
 					GIPC_callbacks.get(s).runCommand(command);;
 				}
 				break;
@@ -184,6 +187,7 @@ public class ARMIBroadcaster implements RMIBroadcaster,CommunicationStateNames {
 			case NonAtomic:
 				for(String s : GIPC_callbacks.keySet()) {
 					if(!s.equals(id)) {
+						ProposalLearnedNotificationSent.newCase(this, CommunicationStateNames.COMMAND,-1, command);
 						GIPC_callbacks.get(s).runCommand(command);;
 					}
 				}

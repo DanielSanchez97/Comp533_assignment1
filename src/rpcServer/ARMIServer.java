@@ -42,7 +42,7 @@ public class ARMIServer implements RMIServer {
 	public void initialize(int rPORT, int nPort, String registryHost, int GipcPort) {
 		NIOServer = new ASimpleNIOServer();
 		NIOServer.initialize(nPort);
-		NIOServer.setAtomic(false); //start in non atomic mode
+		NIOServer.setAtomic(true); //start in non atomic mode
 		
 		try {
 			
