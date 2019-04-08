@@ -39,6 +39,7 @@ public class ARMIClient implements RMIClient, CommunicationStateNames{
 	private static final String LOOKUP = "Broadcast";
 	private ARMICommandProcessor commandProcessor;
 	private RMIBroadcaster broadcaster;
+	private RMIBroadcaster meta_broadcaster;
 	private int id;
 	
 	private Broadcast s_Broadcast;
@@ -62,6 +63,8 @@ public class ARMIClient implements RMIClient, CommunicationStateNames{
 	
 	@Override
 	public void Initialize(int rPORT, int sPORT, String host ,String name, String rHost, boolean vote, int GIPCPort) {
+		
+		
 		try {
 			
 			Registry rmiRegistry = LocateRegistry.getRegistry(rHost, rPORT);
@@ -78,7 +81,7 @@ public class ARMIClient implements RMIClient, CommunicationStateNames{
 			id = broadcaster.Register(commandProcessor);
 			
 			
-			s_id = UUID.randomUUID().toString();
+			s_id = name;
 			GIPCRegistry gipcRegistry = GIPCLocateRegistry.getRegistry(host, GIPCPort, s_id);
 			GIPC_PBroadcaster = gipcRegistry.lookup(RMIBroadcaster.class, LOOKUP);
 		
@@ -88,6 +91,7 @@ public class ARMIClient implements RMIClient, CommunicationStateNames{
 			broadcaster.GIPCRegister(commandProcessor, s_id);
 			
 			broadcaster= (RMIBroadcaster)  RMI_PBroadcaster;
+			meta_broadcaster = (RMIBroadcaster) RMI_PBroadcaster;
 		}
 		catch (Exception e) {
 			e.printStackTrace();
@@ -138,29 +142,31 @@ public class ARMIClient implements RMIClient, CommunicationStateNames{
 		}
 		else {
 			s_IPC = state;
-		}
 		
-		switch (state) {
-			case RMI:
-				broadcaster = (RMIBroadcaster) RMI_PBroadcaster;
-				NIOclient.setLocal(true); //so commands wont be wrote twice via NIO
-				NIOclient.getCommandProcessor().setConnectedToSimulation(true);
-				break;
-	
-			case NIO:
-				NIOclient.setLocal(false);//commands written using buffers
-				if(s_Broadcast == Broadcast.Atomic) {
-					NIOclient.getCommandProcessor().setConnectedToSimulation(false);
-				}
-				break;
-			
-			case GIPC:
-				broadcaster = (RMIBroadcaster) GIPC_PBroadcaster;
-				NIOclient.setLocal(true); //so commands wont be wrote twice via NIO
-				NIOclient.getCommandProcessor().setConnectedToSimulation(true);
+		
+			switch (state) {
+				case RMI:
+					broadcaster = (RMIBroadcaster) RMI_PBroadcaster;
+					NIOclient.setLocal(true); //so commands wont be wrote twice via NIO
+					NIOclient.getCommandProcessor().setConnectedToSimulation(true);
+					break;
+		
+				case NIO:
+					NIOclient.setLocal(false);//commands written using buffers
+					if(s_Broadcast == Broadcast.Atomic) {
+						NIOclient.getCommandProcessor().setConnectedToSimulation(false);
+					}
+					break;
 				
-			default:
-				break;
+				case GIPC:
+					broadcaster = (RMIBroadcaster) GIPC_PBroadcaster;
+					NIOclient.setLocal(true); //so commands wont be wrote twice via NIO
+					NIOclient.getCommandProcessor().setConnectedToSimulation(true);
+					break;
+					
+				default:
+					break;
+			}
 		}
 	}
 	
@@ -275,11 +281,12 @@ public class ARMIClient implements RMIClient, CommunicationStateNames{
 		if(!this.metaState) {
 			return;
 		}
+		
 		util.misc.ThreadSupport.sleep(sleepTime);
 		ProposalMade.newCase(this, CommunicationStateNames.IPC_MECHANISM, -1, state);
 		try {
 			RemoteProposeRequestSent.newCase(this,  CommunicationStateNames.IPC_MECHANISM, -1, state);
-			broadcaster.setIPC(state);
+			meta_broadcaster.setIPC(state);
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -294,7 +301,7 @@ public class ARMIClient implements RMIClient, CommunicationStateNames{
 		ProposalMade.newCase(this, CommunicationStateNames.BROADCAST_MODE, -1, state);
 		try {
 			RemoteProposeRequestSent.newCase(this,  CommunicationStateNames.IPC_MECHANISM, -1, state);
-			broadcaster.setBroadcast(state);
+			meta_broadcaster.setBroadcast(state);
 		} catch (RemoteException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -312,7 +319,7 @@ public class ARMIClient implements RMIClient, CommunicationStateNames{
 	public void processMetaState(boolean value) {
 		if(!value) {
 			try {
-				broadcaster.setMetaState(value);
+				meta_broadcaster.setMetaState(value);
 			} catch (RemoteException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
