@@ -68,7 +68,7 @@ public class MyCustomDuplexObjectClientInputPort  extends ACustomDuplexObjectCli
 			
 		}
 		
-		return null;
+		return aMessage;
 	}
 
 
