@@ -7,10 +7,11 @@ import examples.gipc.counter.customization.ATracingFactorySetter;
 import examples.gipc.counter.customization.FactorySetterFactory;
 import examples.gipc.counter.layers.AMultiLayerCounterClient1;
 
-@Tags (util.annotations.Comp533Tags.EXPLICIT_RECEIVE_CLIENT1)
+@Tags ({util.annotations.Comp533Tags.CUSTOM_RPC_CLIENT1, util.annotations.Comp533Tags.BLOCKING_RPC_CLIENT1})
 public class ClientLauncher1 extends AMultiLayerCounterClient1 {
 	public static void main (String[] args) {
 		util.trace.port.objects.ObjectTraceUtility.setTracing();
+		util.trace.port.rpc.RPCTraceUtility.setTracing();
 		GIPCRPCTraceUtility.setTracing();
 		FactorySetterFactory.setSingleton(new MyFactorySetter());
 		

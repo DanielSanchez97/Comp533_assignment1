@@ -16,6 +16,7 @@ import util.session.AReceivedMessage;
 import util.trace.port.objects.ReceivedMessageDequeued;
 import util.trace.port.objects.ReceivedMessageQueueCreated;
 import util.trace.port.objects.ReceivedMessageQueued;
+import util.trace.port.rpc.RemoteCallReturnValueDetermined;
 
 public class MyCustomDuplexObjectClientInputPort  extends ACustomDuplexObjectClientInputPort{
 	MyReceiveListener listener;

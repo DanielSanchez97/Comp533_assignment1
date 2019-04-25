@@ -1,16 +1,15 @@
 package Assignment4;
 
-import examples.gipc.counter.customization.ACustomDuplexObjectInputPortFactory;
 import examples.gipc.counter.customization.ACustomDuplexReceivedCallInvokerFactory;
-import examples.gipc.counter.customization.ACustomSentCallCompleterFactory;
 import examples.gipc.counter.customization.ACustomSerializerFactory;
 import examples.gipc.counter.customization.FactorySetter;
 import inputport.datacomm.duplex.object.DuplexObjectInputPortSelector;
+import inputport.rpc.duplex.ADuplexSentCallCompleterFactory;
 import inputport.rpc.duplex.DuplexReceivedCallInvokerSelector;
 import inputport.rpc.duplex.DuplexSentCallCompleterSelector;
 import serialization.SerializerSelector;
 
-public class MyFactorySetter implements FactorySetter {
+public class MyFactorySetter2 implements FactorySetter {
 	@Override
 	public void setFactories() {
 		/*
@@ -38,7 +37,7 @@ public class MyFactorySetter implements FactorySetter {
 		 * threading approach to handling incoming procedure calls.
 		 */
 		DuplexReceivedCallInvokerSelector.setReceivedCallInvokerFactory(
-				new MyDuplexReceivedCallInvokerFactory());	
+				new ACustomDuplexReceivedCallInvokerFactory());	
 		/*
 		 * Make the selector thread invoke remote calls through a separate
 		 * thread, the asynchronous threading approach to handling incoming procedure calls.
@@ -51,7 +50,7 @@ public class MyFactorySetter implements FactorySetter {
 		 * a remote call
 		 */
 		DuplexSentCallCompleterSelector.setDuplexSentCallCompleterFactory(
-				new MyDuplexSentCallCompleterFactory());
+				new ADuplexSentCallCompleterFactory());
 		
 		
 		/*
@@ -59,5 +58,4 @@ public class MyFactorySetter implements FactorySetter {
 		 */
 		SerializerSelector.setSerializerFactory(new ACustomSerializerFactory());	
 	}
-
 }
