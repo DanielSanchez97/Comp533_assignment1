@@ -6,9 +6,11 @@ import java.rmi.registry.LocateRegistry;
 import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 
-
-
+import Assignment4.MyFactorySetter;
+import Assignment4.MyFactorySetter3;
 import assignments.util.mainArgs.ServerArgsProcessor;
+import bus.uigen.undo.Util;
+import examples.gipc.counter.customization.FactorySetterFactory;
 import inputport.rpc.GIPCLocateRegistry;
 import inputport.rpc.GIPCRegistry;
 import rpcClient.RMICommandProcessor;
@@ -26,7 +28,7 @@ import util.trace.port.rpc.rmi.RMITraceUtility;
 import util.annotations.Tags;
 import util.tags.DistributedTags;
 
-@Tags({DistributedTags.SERVER, DistributedTags.RMI, DistributedTags.GIPC, DistributedTags.NIO})
+@Tags({DistributedTags.SERVER, DistributedTags.RMI, DistributedTags.GIPC, DistributedTags.NIO, util.annotations.Comp533Tags.CUSTOM_IPC})
 public class ARMIServer implements RMIServer {
 	private static final String NAME = "Broadcast";
 	
@@ -97,6 +99,12 @@ public class ARMIServer implements RMIServer {
 		ConsensusTraceUtility.setTracing();
 		ThreadDelayed.enablePrint();
 		GIPCRPCTraceUtility.setTracing();
+		
+		util.trace.port.objects.ObjectTraceUtility.setTracing();
+		util.trace.port.rpc.RPCTraceUtility.setTracing();
+		GIPCRPCTraceUtility.setTracing();
+		
+		FactorySetterFactory.setSingleton(new MyFactorySetter3());
 
 		ARMIServer aServer = new ARMIServer();
 		

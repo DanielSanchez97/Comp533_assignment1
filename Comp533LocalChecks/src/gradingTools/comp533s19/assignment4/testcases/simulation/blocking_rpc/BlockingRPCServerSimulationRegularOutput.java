@@ -45,7 +45,7 @@ public class BlockingRPCServerSimulationRegularOutput extends TagbasedTwoClientC
 		atomic(),
 		doNIO(),
 		doRMI(),
-		doGIPC(),
+	    doGIPC(),
 		registryTagTest(),
 		serverTagTest(),
 		clientTagTest()

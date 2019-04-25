@@ -7,9 +7,12 @@ import java.rmi.registry.Registry;
 import java.rmi.server.UnicastRemoteObject;
 import java.util.UUID;
 
+import Assignment4.MyFactorySetter;
+import Assignment4.MyFactorySetter3;
 import assignments.util.inputParameters.ASimulationParametersController;
 import assignments.util.mainArgs.ClientArgsProcessor;
 import consensus.ProposalFeedbackKind;
+import examples.gipc.counter.customization.FactorySetterFactory;
 import inputport.rpc.GIPCLocateRegistry;
 import inputport.rpc.GIPCRegistry;
 import port.ATracingConnectionListener;
@@ -33,7 +36,7 @@ import util.tags.DistributedTags;
 import util.trace.port.consensus.*;
 
 
-@Tags({DistributedTags.CLIENT, DistributedTags.RMI, DistributedTags.GIPC, DistributedTags.NIO})
+@Tags({DistributedTags.CLIENT, DistributedTags.RMI, DistributedTags.GIPC, DistributedTags.NIO, util.annotations.Comp533Tags.CUSTOM_IPC})
 
 public class ARMIClient implements RMIClient, CommunicationStateNames{
 	private static final String LOOKUP = "Broadcast";
@@ -244,10 +247,12 @@ public class ARMIClient implements RMIClient, CommunicationStateNames{
 			try {
 				switch (s_Broadcast) {
 					case Atomic:
+						RemoteProposeRequestSent.newCase(this,  CommunicationStateNames.COMMAND, -1, command);
 						//do nothing because the move will be processed when it is returned from server		
 						break;
 						
 					case NonAtomic:
+						RemoteProposeRequestSent.newCase(this,  CommunicationStateNames.COMMAND, -1, command);
 						//process command locally before sending it to broadcast
 						NIOclient.getCommandProcessor().setInputString(command);
 						break;
@@ -256,7 +261,7 @@ public class ARMIClient implements RMIClient, CommunicationStateNames{
 						break;
 				}
 				
-				RemoteProposeRequestSent.newCase(this,  CommunicationStateNames.COMMAND, -1, command);
+				//RemoteProposeRequestSent.newCase(this,  CommunicationStateNames.COMMAND, -1, command);
 				broadcaster.Broadcast(command, id);
 				
 			} catch (RemoteException e) {
@@ -402,6 +407,11 @@ public class ARMIClient implements RMIClient, CommunicationStateNames{
 		RMITraceUtility.setTracing();
 		ConsensusTraceUtility.setTracing();
 		ThreadDelayed.enablePrint();
+		GIPCRPCTraceUtility.setTracing();
+		FactorySetterFactory.setSingleton(new MyFactorySetter3());
+		
+		util.trace.port.objects.ObjectTraceUtility.setTracing();
+		util.trace.port.rpc.RPCTraceUtility.setTracing();
 		GIPCRPCTraceUtility.setTracing();
 		
 		ARMIClient aCLient = new ARMIClient();
